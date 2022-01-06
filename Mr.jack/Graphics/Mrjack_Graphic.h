@@ -9,9 +9,16 @@ char *fonts_consolas = "consolas.ttf";
 char *sounds_button = "Sounds\\button.wav";
 char *sounds_button2 = "Sounds\\button2.wav";
 char *sounds_button3 = "Sounds\\button3.wav";
+///Buttons here
+char *btn_play = "Images\\btn_play.png";
+char *btn_exit = "Images\\btn_exit.png";
+char *btn_resume = "Images\\btn_resume.png";
+char *btn_back = "Images\\btn_back.png";
+char *btn_about = "Images\\btn_about.png";
+char *border_pic = "Images\\border.png";
 
-char *button_1 = "Images\\button_1.bmp";
-char *button_2 = "Images\\button_2.bmp";
+///----end----
+
 
 char *In_Lestrade = "Images\\INNOCENT_INSP_LESTRADE.bmp";
 char *In_Jermy = "Images\\INNOCENT_JERMY_BERT.bmp";
@@ -21,9 +28,12 @@ char *In_Miss_Stealthy = "Images\\INNOCENT_MISS_STEALTHY.bmp";
 char *In_Goodley = "Images\\INNOCENT_SERGENT_GOODLEY.bmp";
 char *In_Sherlock = "Images\\INNOCENT_SHERLOCK_HOLMES.bmp";
 char *In_William_Gull = "Images\\INNOCENT_WILLIAM_GULL.bmp";
+char *bg_pic = "Images\\back.jpg";
+char *mute_btn = "Images\\mute.png";
+char *unmute_btn = "Images\\unmute.png";
 
-
-char *point_pic = "Images\\point.bmp";
+char *point_pic = "Images\\point.png";
+char *about_me = "Images\\about_me.png";
 
 typedef struct _pos{
 int x;
@@ -67,7 +77,8 @@ void error_and_exit(char *text);
 char const *convert_button_number_to_string(int button);
 bool is_mouse_inside_Surface(_pos mouse_pos , SDL_Rect Rect);
 bool chick(_pos mouse_pos , Drawable *obj);
-
+void Stop_Mixer();
+void Resume_Mixer();
 SDL_Surface *Create_Label(Label label);
 Drawable *Create_node(_clickable *_obj);
 void Add_obj(Drawable *head , Drawable *obj_);

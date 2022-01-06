@@ -1,7 +1,9 @@
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include "SDL_mixer.h"
 #include<stdio.h>
 #include<stdbool.h>
+#include "SDL_image.h"
 typedef struct _pos{
 int x;
 int y;
@@ -31,35 +33,24 @@ typedef struct Drawable{
 } Drawable;
 SDL_Surface *load_image(char const *path)
 {
-    SDL_Surface *image_surface = SDL_LoadBMP(path);
+    SDL_Surface *image_surface = IMG_Load(path);
+
     if(!image_surface)
         return 0;
     return image_surface;
 }
 void Play_voice(void *_voice_path){
     char *voice_path = _voice_path;
-    SDL_AudioSpec wav_spec;
-    Uint32 wav_length;
-    Uint8 *wav_buffer;
-    /* Load the WAV */
-    if (SDL_LoadWAV(voice_path, &wav_spec, &wav_buffer, &wav_length) == NULL) {
-        printf("Could not open test.wav: %s\n", SDL_GetError());
-    }
-    else {
-        SDL_AudioDeviceID deviceId = SDL_OpenAudioDevice(NULL, 0, &wav_spec, NULL, 0);
-        int success = SDL_QueueAudio(deviceId, wav_buffer, wav_length);
-        SDL_PauseAudioDevice(deviceId, 0);
-        SDL_Delay(100);
-        SDL_CloseAudioDevice(deviceId);
-    }
-
-    SDL_FreeWAV(wav_buffer);
+    Mix_Chunk *sound_effect = Mix_LoadWAV(_voice_path);
+    Mix_PlayChannel(-1 , sound_effect , 0);
+    //Mix_HaltChannel(1);
+    //Mix_FreeChunk(sound_effect);
 }
 
 void Play_voice_Thread(char *_voice_path){
-    SDL_Thread *thread = SDL_CreateThread(Play_voice,"voice" , (void *)_voice_path);
-    SDL_Delay(100);
+    Play_voice(_voice_path);
 }
+
 void Init(){
     if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0)
     {
@@ -68,6 +59,12 @@ void Init(){
     }
     if(TTF_Init()<0){
         error_and_exit("TTF_not started");
+    }
+    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT , 2 , 2048) < 0){
+        error_and_exit("Error Loading Sound Mixer");
+    }
+    if(IMG_Init(IMG_INIT_PNG)<0){
+        error_and_exit("sdl_png");
     }
 }
 void draw(SDL_Window *window){
@@ -153,4 +150,9 @@ void Add_obj(Drawable *head , Drawable *obj_){
     obj_->prev = seek;
     obj_->next = NULL;
 }
-
+void Stop_Mixer(){
+    Mix_PauseMusic();
+}
+void Resume_Mixer(){
+    Mix_ResumeMusic();
+}

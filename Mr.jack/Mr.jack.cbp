@@ -38,12 +38,15 @@
 			<Add directory="C:/SDL2/include/SDL2" />
 			<Add directory="C:/SDL2/TTF/include/SDL2" />
 			<Add directory="C:/SDL2/SDL2_Image/include/SDL2" />
+			<Add directory="C:/SDL2/SDL2_Mixer/include/SDL2" />
 		</Compiler>
 		<Linker>
 			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image" />
+			<Add option="-lSDL2_mixer -lSDL2_image" />
 			<Add directory="C:/SDL2/lib" />
 			<Add directory="C:/SDL2/TTF/lib" />
 			<Add directory="C:/SDL2/SDL2_Image/lib" />
+			<Add directory="C:/SDL2/SDL2_Mixer/lib" />
 		</Linker>
 		<Unit filename="Graphics/Drawable_linkedlist.c">
 			<Option compilerVar="CC" />

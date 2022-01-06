@@ -410,3 +410,56 @@
 1641312742 source:c:\users\matin\desktop\mr.jack\graphics\drawable_linkedlist.c
 	"SDL.h"
 
+1641463931 source:c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\graphics_functions.c
+	"SDL.h"
+	"SDL_ttf.h"
+	"SDL_mixer.h"
+	<stdio.h>
+	<stdbool.h>
+	"SDL_image.h"
+
+1641466118 source:c:\users\matin\desktop\mr.jack-sdl2\mr.jack\main.c
+	"SDL.h"
+	<stdio.h>
+	<stdbool.h>
+	"Graphics/Mrjack_Graphic.h"
+	<Windows.h>
+	"SDL_ttf.h"
+	"SDL_mixer.h"
+	"SDL_image.h"
+	"SDL_opengl.h"
+
+1641466050 c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\mrjack_graphic.h
+	<stdbool.h>
+
+1540997992 c:\sdl2\sdl2_mixer\include\sdl2\sdl_mixer.h
+	"SDL_stdinc.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_endian.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1561866768 c:\sdl2\sdl2_image\include\sdl2\sdl_image.h
+	"SDL.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1638246223 c:\sdl2\include\sdl2\sdl_opengl.h
+	"SDL_config.h"
+	"gl_mangle.h"
+	<windows.h>
+	"SDL_opengl_glext.h"
+
+1638246223 c:\sdl2\include\sdl2\sdl_opengl_glext.h
+	<windows.h>
+	<stddef.h>
+	<inttypes.h>
+	<inttypes.h>
+	<inttypes.h>
+	<stdint.h>
+	<stdint.h>
+	<inttypes.h>
+
