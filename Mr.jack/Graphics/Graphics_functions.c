@@ -3,11 +3,36 @@
 #include "SDL_mixer.h"
 #include<stdio.h>
 #include<stdbool.h>
+#include<string.h>
 #include "SDL_image.h"
+//map_blocks
+
+char *Cells_Empty_block = "Images\\Blocks\\empty_block.png";
+char *Cells_house_block = "Images\\Blocks\\house.png";
+char *Cells_house2_block = "Images\\Blocks\\house_2.png";
+char *Cells_light = "Images\\Blocks\\light.png";
+char *Cells_lighten_block = "Images\\Blocks\\light_block.png";
+char *Cells_pit = "Images\\Blocks\\pit.png";
+char *Cells_pit_lighten = "Images\\Blocks\\pit_light.png";
+char *Cells_Walkable = "Images\\Blocks\\walkable_block.png";
+char *Cells_light_effect = "Images\\Blocks\\light_effect.png";
+
 typedef struct _pos{
 int x;
 int y;
 } _pos;
+typedef struct _pair{
+int first;
+int second;
+}_pair;
+typedef struct Map_Cell{
+    char *cell_type;
+    char *person_name;
+    _pair cell_pos;
+    bool lighten;
+    bool walk_able;
+    bool choose_able;
+}Map_Cell;
 typedef struct _clickable{
     char *tag;
     bool click_able;
@@ -16,6 +41,8 @@ typedef struct _clickable{
     bool entered;
     bool do_chick;
     bool visible;
+    Map_Cell *cell_info;
+    _pair map_pos;
 } _clickable;
 
 typedef struct Label{
@@ -31,6 +58,9 @@ typedef struct Drawable{
     struct Drawable *next;
     struct Drawable *prev;
 } Drawable;
+
+
+
 SDL_Surface *load_image(char const *path)
 {
     SDL_Surface *image_surface = IMG_Load(path);
@@ -40,7 +70,6 @@ SDL_Surface *load_image(char const *path)
     return image_surface;
 }
 void Play_voice(void *_voice_path){
-    char *voice_path = _voice_path;
     Mix_Chunk *sound_effect = Mix_LoadWAV(_voice_path);
     Mix_PlayChannel(-1 , sound_effect , 0);
     //Mix_HaltChannel(1);
@@ -50,7 +79,10 @@ void Play_voice(void *_voice_path){
 void Play_voice_Thread(char *_voice_path){
     Play_voice(_voice_path);
 }
-
+void error_and_exit(char *text){
+    printf(text);
+    exit(-1);
+}
 void Init(){
     if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0)
     {
@@ -73,10 +105,6 @@ void draw(SDL_Window *window){
 }
 void clear_surface(SDL_Surface *window_surface){
     SDL_FillRect(window_surface, NULL, SDL_MapRGB(window_surface->format, 0, 0, 0));
-}
-void error_and_exit(char *text){
-    printf(text);
-    exit(-1);
 }
 char const *convert_button_number_to_string(int button)
 {
@@ -106,8 +134,39 @@ bool is_mouse_inside_Surface(_pos mouse_pos , SDL_Rect Rect){
         return true;
     return false;
 }
+bool is_mouse_inside_cell(_pos mouse_pos , SDL_Rect cell_rect){
+    int mx , my;
+    mx = mouse_pos.x;
+    my = mouse_pos.y;
+    int posx, posy;
+    posx = cell_rect.x;
+    posy = cell_rect.y;
+    SDL_Rect mn;
+    mn.x = posx+25;
+    mn.w = 50;
+    mn.y = posy;
+    mn.h = 84;
+    SDL_Rect mn2;
+    mn2.x = posx+13;
+    mn2.w = 73;
+    mn2.y = posy+22;
+    mn2.h = 41;
+    if(is_mouse_inside_Surface(mouse_pos , mn) || is_mouse_inside_Surface(mouse_pos , mn2)){
+        return true;
+    }
+    else{
+        ///TODO:We need some calcs for eentire hexagon here
+        return false;
+    }
+
+}
 bool chick(_pos mouse_pos , Drawable *obj){
-    bool inside = is_mouse_inside_Surface(mouse_pos , obj->obj->pos);
+
+    bool inside;
+    if(strcmp(obj->obj->tag,"MapCell")==0)
+        inside = is_mouse_inside_cell(mouse_pos , obj->obj->pos);
+    else
+        inside = is_mouse_inside_Surface(mouse_pos , obj->obj->pos);
     if((!(obj->obj->entered)) && inside){
         obj->obj->entered = true;
         if(obj->obj->do_chick){
@@ -132,13 +191,27 @@ Drawable *Create_node(_clickable *_obj){
     new_node->next = NULL;
     new_node->prev = NULL;
     new_node->obj = _obj;
+    //new_node->obj->cell_info = NULL;
     return new_node;
 }
-void DrawStuff(Drawable **head , SDL_Surface *window_surface){
+void DrawStuff(Drawable **head , SDL_Surface *window_surface , SDL_Surface *light_eff){
     Drawable *seek = *head;
     while(seek){
-        if(seek->obj->visible)
-            SDL_BlitSurface(seek->obj->image, NULL, window_surface, &(seek->obj->pos));
+        if(seek->obj->visible){
+            if(seek->obj->entered && seek->obj->do_chick){
+                SDL_Rect rect;
+                rect.x= seek->obj->pos.x+3;
+                rect.y= seek->obj->pos.y-2;
+                SDL_BlitSurface(seek->obj->image, NULL, window_surface, &rect);
+                if(strcmp(seek->obj->tag, "MapCell")==0&&seek->obj->cell_info->lighten)
+                    SDL_BlitSurface(light_eff, NULL, window_surface, &rect);
+            }
+            else{
+                SDL_BlitSurface(seek->obj->image, NULL, window_surface, &(seek->obj->pos));
+                if(strcmp(seek->obj->tag, "MapCell")==0&&seek->obj->cell_info->lighten)
+                    SDL_BlitSurface(light_eff, NULL, window_surface, &(seek->obj->pos));
+            }
+        }
         seek = seek->next;
     }
 }
@@ -155,4 +228,127 @@ void Stop_Mixer(){
 }
 void Resume_Mixer(){
     Mix_ResumeMusic();
+}
+void clear_scene(Drawable *seek){
+    while(seek){
+        seek->obj->entered=false;
+        seek = seek->next;
+    }
+}
+void change_scene(Drawable **head , Drawable *scene){
+    clear_scene(*head);
+    *head = scene;
+}
+void Draw_map(Drawable *scene , int x , int y){
+    for(int i = 0; i < 9 ; i++){ //arz
+        for(int j = 0; j <13 ; j++ ){ //tool
+            _clickable *Cell = (_clickable*)malloc(sizeof(_clickable));
+            Cell->tag = "MapCell";
+            Cell->click_able = true;
+            Cell->entered = false;
+            Cell->do_chick = true;
+            Cell->visible = true;
+            Map_Cell *cell_info = (Map_Cell*)malloc(sizeof(Map_Cell));
+            cell_info->cell_type = "empty";
+            cell_info->choose_able = true;
+            cell_info->lighten = false;
+            cell_info->person_name = "";
+            cell_info->walk_able = true;
+            Cell->cell_info = cell_info;
+            Cell->pos.x = x+j*75;
+            if(j%2 == 0){
+            Cell->pos.y = y+i*87;
+            Cell->cell_info->cell_pos.second = i*2;
+            }
+            else{
+                Cell->pos.y = y+i*87 + 44;
+                Cell->cell_info->cell_pos.second = 2*i+1;
+            }
+            Cell->cell_info->cell_pos.first = j;
+            Cell->image = load_image(Cells_Empty_block);
+            Add_obj(scene , Create_node(Cell));
+        }
+    }
+
+}
+
+void Change_Block_pic(Drawable *head, int first , int second , char *new_image){
+    while(head){
+        if(strcmp(head->obj->tag,"MapCell") == 0){
+            if(head->obj->cell_info->cell_pos.first == first && head->obj->cell_info->cell_pos.second == second){
+                SDL_FreeSurface(head->obj->image);
+                head->obj->image = load_image(new_image);
+                return;
+            }
+        }
+        head = head->next;
+    }
+}
+
+Drawable *Find_Cell(Drawable *head , int first , int second){
+    while(head){
+        if(head->obj->cell_info)
+            if(head->obj->cell_info->cell_pos.first == first && head->obj->cell_info->cell_pos.second == second){
+                return head;
+            }
+        head = head->next;
+    }
+    return NULL;
+}
+
+void Free_List(Drawable **head){
+    Drawable *seek = *head;
+    if(seek->next==NULL){
+        SDL_FreeSurface(seek->obj->image);
+        free(*head);
+        return;
+    }
+    while(seek->next){
+        seek = seek->next;
+        SDL_FreeSurface(seek->prev->obj->image);
+        free(seek->prev);
+    }
+    SDL_FreeSurface(seek->obj->image);
+    free(seek);
+    return;
+}
+void light_cells(Drawable *head , int first , int second , int dir , bool on){
+    int dx, dy;
+    switch(dir){
+    case 0:
+        dx = 0;
+        dy = -2;
+        break;
+    case 1:
+        dx = 1;
+        dy = -1;
+        break;
+    case 2:
+        dx = 1;
+        dy = 1;
+        break;
+    case 3:
+        dx = 0;
+        dy = 2;
+        break;
+    case 4:
+        dx = -1;
+        dy = +1;
+        break;
+    case 5:
+        dx = -1;
+        dy = -1;
+        break;
+    }
+    first+=dx;
+    second+=dy;
+    while(first>=0 && first<=12 && second>=0 && second<=17){
+        Drawable *cell = Find_Cell(head,first,second);
+        if(cell){
+            cell->obj->cell_info->lighten = on;
+        }
+        first+=dx;
+        second+=dy;
+    }
+    return;
 }

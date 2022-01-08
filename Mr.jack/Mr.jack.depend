@@ -410,15 +410,16 @@
 1641312742 source:c:\users\matin\desktop\mr.jack\graphics\drawable_linkedlist.c
 	"SDL.h"
 
-1641463931 source:c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\graphics_functions.c
+1641646262 source:c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\graphics_functions.c
 	"SDL.h"
 	"SDL_ttf.h"
 	"SDL_mixer.h"
 	<stdio.h>
 	<stdbool.h>
+	<string.h>
 	"SDL_image.h"
 
-1641466118 source:c:\users\matin\desktop\mr.jack-sdl2\mr.jack\main.c
+1641645841 source:c:\users\matin\desktop\mr.jack-sdl2\mr.jack\main.c
 	"SDL.h"
 	<stdio.h>
 	<stdbool.h>
@@ -429,7 +430,7 @@
 	"SDL_image.h"
 	"SDL_opengl.h"
 
-1641466050 c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\mrjack_graphic.h
+1641645533 c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\mrjack_graphic.h
 	<stdbool.h>
 
 1540997992 c:\sdl2\sdl2_mixer\include\sdl2\sdl_mixer.h
@@ -462,4 +463,8 @@
 	<stdint.h>
 	<stdint.h>
 	<inttypes.h>
+
+1641630709 c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\var_header.h
+
+1641631270 c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\var_head.h
 

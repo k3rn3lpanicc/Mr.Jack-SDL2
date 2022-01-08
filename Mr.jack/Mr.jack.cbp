@@ -48,14 +48,10 @@
 			<Add directory="C:/SDL2/SDL2_Image/lib" />
 			<Add directory="C:/SDL2/SDL2_Mixer/lib" />
 		</Linker>
-		<Unit filename="Graphics/Drawable_linkedlist.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="Graphics/Graphics_functions.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Graphics/Mrjack_Graphic.h" />
-		<Unit filename="Graphics/Mrjack_Graphics_logic.h" />
 		<Unit filename="Main.c">
 			<Option compilerVar="CC" />
 		</Unit>
