@@ -89,6 +89,7 @@ char *home_hover = "Images\\home_hover.png";
 char *empty_cell = "Images\\Blocks\\empty_block.png";
 char *walkable_block = "Images\\Blocks\\walkable_block.png";
 char *light_effect = "Images\\Blocks\\light_effect.png";
+char *house_no1 = "Images\\Blocks\\house.png";
 
 
 SDL_Surface *load_image(char *path);
@@ -116,7 +117,9 @@ void Draw_map(Drawable *scene , int x , int y);
 void Change_Block_pic(Drawable *head, int first , int second , char *new_image);
 void Free_List(Drawable **head);
 Drawable *Find_Cell(Drawable *head , int first , int second);
-void light_cells(Drawable *head , int first , int second , int dir , bool on);
+void light_cells_dir(Drawable *head , int first , int second , int dir , bool on);
 bool is_mouse_inside_cell(_pos mouse_pos , SDL_Rect cell_rect);
+void Light_Cell(Drawable *head , int first , int second , bool on);
+void Map_Lights(Drawable *head);
 
 #endif // MRJACK_GRAPHIC_H_INCLUDED

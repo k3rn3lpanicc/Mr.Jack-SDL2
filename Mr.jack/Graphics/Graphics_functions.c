@@ -239,6 +239,16 @@ void change_scene(Drawable **head , Drawable *scene){
     clear_scene(*head);
     *head = scene;
 }
+Drawable *Find_Cell(Drawable *head , int first , int second){
+    while(head){
+        if(head->obj->cell_info)
+            if(head->obj->cell_info->cell_pos.first == first && head->obj->cell_info->cell_pos.second == second){
+                return head;
+            }
+        head = head->next;
+    }
+    return NULL;
+}
 void Draw_map(Drawable *scene , int x , int y){
     for(int i = 0; i < 9 ; i++){ //arz
         for(int j = 0; j <13 ; j++ ){ //tool
@@ -249,6 +259,7 @@ void Draw_map(Drawable *scene , int x , int y){
             Cell->do_chick = true;
             Cell->visible = true;
             Map_Cell *cell_info = (Map_Cell*)malloc(sizeof(Map_Cell));
+
             cell_info->cell_type = "empty";
             cell_info->choose_able = true;
             cell_info->lighten = false;
@@ -269,6 +280,66 @@ void Draw_map(Drawable *scene , int x , int y){
             Add_obj(scene , Create_node(Cell));
         }
     }
+    FILE *file = fopen("Graphics\\Map.jack","r");
+    if(file == NULL){
+        printf("can not load file!");
+        return;
+    }
+    char data[50];
+    while(fgets(data,49 , file)){
+        int first , second;
+        char tp[6];
+        sscanf(data,"%d %d %s" , &first , &second , tp);
+        if((strcmp(tp , "H1") == 0) || strcmp(tp , "H2") == 0){
+            Drawable *cell = Find_Cell(scene , first , second);
+            cell->obj->click_able = false;
+            cell->obj->do_chick = false;
+            cell->obj->cell_info->cell_type = "house";
+            cell->obj->cell_info->choose_able = false;
+            SDL_FreeSurface(cell->obj->image);
+            if((strcmp(tp , "H1") == 0))
+                cell->obj->image = load_image("Images\\Blocks\\house.png");
+            else
+                cell->obj->image = load_image("Images\\Blocks\\house_2.png");
+        }
+        else if((strcmp(tp , "PI") == 0)){
+            Drawable *cell = Find_Cell(scene , first , second);
+            cell->obj->click_able = true;
+            cell->obj->do_chick = false;
+            cell->obj->cell_info->cell_type = "pit";
+            cell->obj->cell_info->choose_able = false;
+            SDL_FreeSurface(cell->obj->image);
+            cell->obj->image = load_image("Images\\Blocks\\pit.png");
+        }
+        else if((strcmp(tp , "LI") == 0)){
+            Drawable *cell = Find_Cell(scene , first , second);
+            cell->obj->click_able = true;
+            cell->obj->do_chick = false;
+            cell->obj->cell_info->cell_type = "Light";
+            cell->obj->cell_info->choose_able = false;
+            SDL_FreeSurface(cell->obj->image);
+            cell->obj->image = load_image("Images\\Blocks\\light_empt.png");
+        }
+        else if((strcmp(tp , "Ex") == 0)){
+            Drawable *cell = Find_Cell(scene , first , second);
+            cell->obj->click_able = true;
+            cell->obj->do_chick = false;
+            cell->obj->cell_info->cell_type = "town_exit";
+            cell->obj->cell_info->choose_able = false;
+            SDL_FreeSurface(cell->obj->image);
+            cell->obj->image = load_image("Images\\Blocks\\exit.png");
+        }
+        else if((strcmp(tp , "E") == 0)){
+            Drawable *cell = Find_Cell(scene , first , second);
+            cell->obj->click_able = true;
+            cell->obj->do_chick = false;
+            cell->obj->cell_info->cell_type = "EE";
+            cell->obj->cell_info->choose_able = false;
+            SDL_FreeSurface(cell->obj->image);
+            cell->obj->image = load_image("Images\\Blocks\\exit.png");
+        }
+    }
+    fclose(file);
 
 }
 
@@ -285,16 +356,7 @@ void Change_Block_pic(Drawable *head, int first , int second , char *new_image){
     }
 }
 
-Drawable *Find_Cell(Drawable *head , int first , int second){
-    while(head){
-        if(head->obj->cell_info)
-            if(head->obj->cell_info->cell_pos.first == first && head->obj->cell_info->cell_pos.second == second){
-                return head;
-            }
-        head = head->next;
-    }
-    return NULL;
-}
+
 
 void Free_List(Drawable **head){
     Drawable *seek = *head;
@@ -312,7 +374,7 @@ void Free_List(Drawable **head){
     free(seek);
     return;
 }
-void light_cells(Drawable *head , int first , int second , int dir , bool on){
+void light_cells_dir(Drawable *head , int first , int second , int dir , bool on){
     int dx, dy;
     switch(dir){
     case 0:
@@ -342,7 +404,7 @@ void light_cells(Drawable *head , int first , int second , int dir , bool on){
     }
     first+=dx;
     second+=dy;
-    while(first>=0 && first<=12 && second>=0 && second<=17){
+    while(first>=0 && first<=12 && second>=0 && second<=17 && strcmp(Find_Cell(head, first , second)->obj->cell_info->cell_type , "empty")==0){
         Drawable *cell = Find_Cell(head,first,second);
         if(cell){
             cell->obj->cell_info->lighten = on;
@@ -352,3 +414,44 @@ void light_cells(Drawable *head , int first , int second , int dir , bool on){
     }
     return;
 }
+void Light_Cell(Drawable *head , int first , int second , bool on){
+    Drawable *found = Find_Cell(head, first , second);
+    if(found)
+        found->obj->cell_info->lighten = on;
+}
+_pair loc(Drawable *head ,int x , int y){
+    while(head){
+        if(strcmp(head->obj->tag , "MapCell") == 0){
+            if(head->obj->pos.x == x && head->obj->pos.y == y){
+                _pair lol = {.first = head->obj->cell_info->cell_pos.first , .second = head->obj->cell_info->cell_pos.second};
+                return lol;
+            }
+        }
+        head = head->next;
+    }
+}
+void Map_Lights(Drawable *head){
+    Drawable *seek = head;
+    while(seek){
+        if(seek->obj->tag[0] == 'J' && seek->obj->tag[1] == 'W'){
+            int dir = seek->obj->tag[2] - '0';
+            _pair place = loc(head , seek->obj->pos.x-18 , seek->obj->pos.y-13);
+            light_cells_dir(head, place.first, place.second, dir , true);
+        }
+        if(seek->obj->tag[0] == 'L' && seek->obj->tag[1] == 'I'){
+            _pair place = loc(head , seek->obj->pos.x , seek->obj->pos.y);
+            int first = place.first;
+            int seco = place.second;
+            Light_Cell(head , first , seco,true);
+            Light_Cell(head , first , seco-2,true);
+            Light_Cell(head , first , seco+2,true);
+            Light_Cell(head , first+1 , seco-1,true);
+            Light_Cell(head , first-1 , seco-1,true);
+            Light_Cell(head , first+1 , seco+1,true);
+            Light_Cell(head , first-1 , seco+1,true);
+        }
+        seek = seek->next;
+    }
+
+}
+
