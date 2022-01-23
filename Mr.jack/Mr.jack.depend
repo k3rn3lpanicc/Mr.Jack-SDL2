@@ -410,7 +410,7 @@
 1641312742 source:c:\users\matin\desktop\mr.jack\graphics\drawable_linkedlist.c
 	"SDL.h"
 
-1642020159 source:c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\graphics_functions.c
+1642873721 source:c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\graphics_functions.c
 	"SDL.h"
 	"SDL_ttf.h"
 	"SDL_mixer.h"
@@ -418,20 +418,24 @@
 	<stdbool.h>
 	<string.h>
 	"SDL_image.h"
+	<time.h>
+	<stdlib.h>
 
-1642020104 source:c:\users\matin\desktop\mr.jack-sdl2\mr.jack\main.c
+1642944179 source:c:\users\matin\desktop\mr.jack-sdl2\mr.jack\main.c
 	"SDL.h"
 	<stdio.h>
 	<stdbool.h>
+	<time.h>
+	<stdlib.h>
 	"Graphics/Mrjack_Graphic.h"
 	<Windows.h>
 	"SDL_ttf.h"
 	"SDL_mixer.h"
 	"SDL_image.h"
-	"SDL_opengl.h"
 
-1642019039 c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\mrjack_graphic.h
+1642935420 c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\mrjack_graphic.h
 	<stdbool.h>
+	"SDL_ttf.h"
 
 1540997992 c:\sdl2\sdl2_mixer\include\sdl2\sdl_mixer.h
 	"SDL_stdinc.h"
@@ -467,4 +471,15 @@
 1641630709 c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\var_header.h
 
 1641631270 c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\var_head.h
+
+1642944196 source:c:\users\matin\desktop\mr.jack-sdl2\mr.jack\graphics\mrjack_graphic.c
+	"SDL.h"
+	"SDL_ttf.h"
+	"SDL_mixer.h"
+	<stdio.h>
+	<stdbool.h>
+	<string.h>
+	"SDL_image.h"
+	<time.h>
+	<stdlib.h>
 
