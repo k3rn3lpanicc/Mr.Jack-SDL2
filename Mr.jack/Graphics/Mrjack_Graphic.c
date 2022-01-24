@@ -201,7 +201,7 @@ Drawable *Create_node(_clickable *_obj){
     //new_node->obj->cell_info = NULL;
     return new_node;
 }
-void DrawStuff(Drawable **head , SDL_Surface *window_surface , SDL_Surface *light_eff){
+void DrawStuff(Drawable **head , SDL_Surface *window_surface , SDL_Surface *light_eff , SDL_Surface *walk_able){
     Drawable *seek = *head;
     while(seek){
         if(seek->obj->visible){
@@ -212,11 +212,15 @@ void DrawStuff(Drawable **head , SDL_Surface *window_surface , SDL_Surface *ligh
                 SDL_BlitSurface(seek->obj->image, NULL, window_surface, &rect);
                 if(strcmp(seek->obj->tag, "MapCell")==0&&seek->obj->cell_info->lighten)
                     SDL_BlitSurface(light_eff, NULL, window_surface, &rect);
+                if(strcmp(seek->obj->tag, "MapCell")==0&&seek->obj->cell_info->walk_able)
+                    SDL_BlitSurface(walk_able, NULL, window_surface, &rect);
             }
             else{
                 SDL_BlitSurface(seek->obj->image, NULL, window_surface, &(seek->obj->pos));
                 if(strcmp(seek->obj->tag, "MapCell")==0&&seek->obj->cell_info->lighten)
                     SDL_BlitSurface(light_eff, NULL, window_surface, &(seek->obj->pos));
+                if(strcmp(seek->obj->tag, "MapCell")==0&&seek->obj->cell_info->walk_able)
+                    SDL_BlitSurface(walk_able, NULL, window_surface, &(seek->obj->pos));
             }
         }
         seek = seek->next;
@@ -266,12 +270,11 @@ void Draw_map(Drawable *scene , int x , int y){
             Cell->do_chick = true;
             Cell->visible = true;
             Map_Cell *cell_info = (Map_Cell*)malloc(sizeof(Map_Cell));
-
             cell_info->cell_type = "empty";
             cell_info->choose_able = true;
             cell_info->lighten = false;
             cell_info->person_name = "";
-            cell_info->walk_able = true;
+            cell_info->walk_able = false;
             Cell->cell_info = cell_info;
             Cell->pos.x = x+j*75;
             if(j%2 == 0){
@@ -511,7 +514,7 @@ _pos get_location_animation(double time , _pos mabda , _pos maghsad){
     location.y = (double)mabda.y+((double)(maghsad.y-mabda.y)/50)*time;
     return location;
 }
-void switch_lamps(_pair lamp1 , _pair lamp2,Drawable *head,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Window *window){
+bool switch_lamps(_pair lamp1 , _pair lamp2,Drawable *head,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window){
     Drawable *lamp_1 = Find_Cell(head , lamp1.first, lamp1.second);
     Drawable *lamp_2 = Find_Cell(head , lamp2.first , lamp2.second);
     if(lamp_1 && lamp_2){
@@ -521,11 +524,11 @@ void switch_lamps(_pair lamp1 , _pair lamp2,Drawable *head,SDL_Surface *window_s
                 Drawable *llmp2 = loc_lamp(head , lamp_2->obj->pos.x , lamp_2->obj->pos.y);
                 if(llmp2){
                     printf("the destination block is full\n");
-                    return;
+                    return false;
                 }
                 if(!llmp){
                     printf("there is no lights in this lightblock to move\n");
-                    return;
+                    return false;
                 }
                 _pos mabda = {llmp->obj->pos.x, llmp->obj->pos.y};
                 _pos maghsad = {lamp_2->obj->pos.x, lamp_2->obj->pos.y};
@@ -533,16 +536,17 @@ void switch_lamps(_pair lamp1 , _pair lamp2,Drawable *head,SDL_Surface *window_s
                     _pos get_lc = get_location_animation(i , mabda , maghsad);
                     llmp->obj->pos.x = get_lc.x;
                     llmp->obj->pos.y = get_lc.y;
-                    DrawStuff(&head , window_surface , light_eff);
+                    DrawStuff(&head , window_surface , light_eff,walkable_effect);
                     draw(window);
                     clear_surface(window_surface);
                 }
                 llmp->obj->pos.x = lamp_2->obj->pos.x;
                 llmp->obj->pos.y = lamp_2->obj->pos.y;
+                return true;
             }
             else{
                 printf("the first block is not a light block\n");
-                return;
+                return false;
             }
         }
         else{
@@ -556,7 +560,7 @@ void switch_lamps(_pair lamp1 , _pair lamp2,Drawable *head,SDL_Surface *window_s
     }
 }
 
-void switch_pits(_pair pit1 , _pair pit2,Drawable *head,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Window *window){
+bool switch_pits(_pair pit1 , _pair pit2,Drawable *head,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window){
     Drawable *pit_1 = Find_Cell(head , pit1.first, pit1.second);
     Drawable *pit_2 = Find_Cell(head , pit2.first , pit2.second);
     if(pit_1 && pit_2){
@@ -566,11 +570,11 @@ void switch_pits(_pair pit1 , _pair pit2,Drawable *head,SDL_Surface *window_surf
                 Drawable *llmp2 = loc_pit(head , pit_2->obj->pos.x , pit_2->obj->pos.y);
                 if(llmp2){
                     printf("the destination block is full\n");
-                    return;
+                    return false;
                 }
                 if(!llmp){
                     printf("There is no pitholds in this pit block to move\n");
-                    return;
+                    return false;
                 }
                 _pos mabda = {llmp->obj->pos.x, llmp->obj->pos.y};
                 _pos maghsad = {pit_2->obj->pos.x, pit_2->obj->pos.y};
@@ -578,26 +582,27 @@ void switch_pits(_pair pit1 , _pair pit2,Drawable *head,SDL_Surface *window_surf
                     _pos get_lc = get_location_animation(i , mabda , maghsad);
                     llmp->obj->pos.x = get_lc.x;
                     llmp->obj->pos.y = get_lc.y;
-                    DrawStuff(&head , window_surface , light_eff);
+                    DrawStuff(&head , window_surface , light_eff,walkable_effect);
                     draw(window);
                     clear_surface(window_surface);
                 }
                 llmp->obj->pos.x = pit_2->obj->pos.x;
                 llmp->obj->pos.y = pit_2->obj->pos.y;
+                return true;
             }
             else{
                 printf("First Block is not a pit block\n");
-                return;
+                return false;
             }
         }
         else{
             printf("Given block is not a pit block\n");
-            return;
+            return false;
         }
     }
     else{
         printf("pit position is null\n");
-        return;
+        return false;
     }
 }
 Drawable *Search_by_tag(Drawable *head , char *tag){
@@ -617,7 +622,6 @@ Drawable *Search_by_tag_2(Drawable *head , char *tag){
     return NULL;
 }
 bool is_cell_full(Drawable *head , int x , int y){
-
     while(head){
         if(strlen(head->obj->tag)==2 && x == head->obj->pos.x && y==head->obj->pos.y){
             return true;
@@ -626,12 +630,12 @@ bool is_cell_full(Drawable *head , int x , int y){
     }
     return false;
 }
-void switch_characters(Drawable *head , char *name1 , char *name2 , SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Window *window){
+bool switch_characters(Drawable *head , char *name1 , char *name2 , SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window){
     Drawable *Player_1 = Search_by_tag(head , name1);
     Drawable *Player_2 = Search_by_tag(head , name2);
     if(!(Player_1 && Player_2)){
         printf("one or two of the Players not found!\n");
-        return;
+        return false;
     }
     _pos P1 = {Player_1->obj->pos.x , Player_1->obj->pos.y};
     _pos P2 = {Player_2->obj->pos.x , Player_2->obj->pos.y};
@@ -642,7 +646,7 @@ void switch_characters(Drawable *head , char *name1 , char *name2 , SDL_Surface 
         Player_1->obj->pos.y = get_lc.y;
         Player_2->obj->pos.x = get_lc2.x;
         Player_2->obj->pos.y = get_lc2.y;
-        DrawStuff(&head , window_surface , light_eff);
+        DrawStuff(&head , window_surface , light_eff,walkable_effect);
         draw(window);
         clear_surface(window_surface);
     }
@@ -650,40 +654,41 @@ void switch_characters(Drawable *head , char *name1 , char *name2 , SDL_Surface 
     Player_1->obj->pos.y = P2.y;
     Player_2->obj->pos.x = P1.x;
     Player_2->obj->pos.y = P1.y;
+    return true;
 }
-void change_character_place(Drawable *head ,char *name , _pair dest,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Window *window){
+bool change_character_place(Drawable *head ,char *name , _pair dest,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window){
     Drawable *found = Search_by_tag_2(head , name);
     if(found){
         Drawable *cell = Find_Cell(head ,dest.first,dest.second);
         if(!cell){
             printf("the dest cell not found!\n");
-            return;
+            return false;
         }
         _pos mabda = {found->obj->pos.x, found->obj->pos.y};
         _pos maghsad = {cell->obj->pos.x+18, cell->obj->pos.y+13};
         if(mabda.x==maghsad.x && mabda.y==maghsad.y){
             printf("base and dest are the same !\n");
-            return;
+            return false;
         }
         if(is_cell_full(head,maghsad.x,maghsad.y)){
             printf("dest is full\n");
-            return;
+            return false;
         }
         for(int i = 0 ; i<=50 ; i++){
             _pos get_lc = get_location_animation(i , mabda , maghsad);
             found->obj->pos.x = get_lc.x;
             found->obj->pos.y = get_lc.y;
-            DrawStuff(&head , window_surface , light_eff);
+            DrawStuff(&head , window_surface , light_eff,walkable_effect);
             draw(window);
             clear_surface(window_surface);
         }
         found->obj->pos.x = cell->obj->pos.x+18;
         found->obj->pos.y = cell->obj->pos.y+13;
-        return;
+        return true;
     }
     else{
         printf("character not found!\n");
-        return;
+        return false;
     }
 
 }
@@ -702,22 +707,36 @@ void change_watson_direction(Drawable *head , int _direction){
         return;
     }
 }
-void change_wall(Drawable *head , char *name , _pair dest,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Window *window){
+bool change_wall(Drawable *head , char *name , _pair dest,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window){
     Drawable *cell = Search_by_tag(head , name);
+    char *next_wall = strcmp(name , "wall1")==0 ? "wall2" : "wall1";
+    Drawable *next_wall_cell = Search_by_tag(head , next_wall);
+    if(!next_wall_cell){
+        printf("next wall not found!\n");
+        return false;
+    }
     Drawable *cell_dest = Find_Cell(head , dest.first , dest.second);
     if(!cell){
         printf("Wall not found!\n");
-        return;
+        return false;
+    }
+    if(cell_dest->obj->pos.x == next_wall_cell->obj->pos.x && cell_dest->obj->pos.y == next_wall_cell->obj->pos.y){
+        printf("the destination is full");
+        return false;
+    }
+    if(cell->obj->pos.x==cell_dest->obj->pos.x&&cell->obj->pos.y==cell_dest->obj->pos.y){
+        printf("Base and dest are the same\n");
+        return false;
     }
     if(!cell_dest){
         printf("The destination is not a town_exit cell!\n");
-        return;
+        return false;
     }
     if(strcmp(cell_dest->obj->tag , "MapCell") == 0 && strcmp(cell_dest->obj->cell_info->cell_type,"town_exit") == 0){
         Drawable *CC = Find_Cell(head ,dest.first , dest.second);
         if(!CC){
             printf("error\n");
-            return;
+            return false;
         }
         _pos mabda = {cell->obj->pos.x, cell->obj->pos.y};
         _pos maghsad = {CC->obj->pos.x, CC->obj->pos.y};
@@ -725,17 +744,17 @@ void change_wall(Drawable *head , char *name , _pair dest,SDL_Surface *window_su
             _pos get_lc = get_location_animation(i , mabda , maghsad);
             cell->obj->pos.x = get_lc.x;
             cell->obj->pos.y = get_lc.y;
-            DrawStuff(&head , window_surface , light_eff);
+            DrawStuff(&head , window_surface , light_eff,walkable_effect);
             draw(window);
             clear_surface(window_surface);
         }
         cell->obj->pos.x = CC->obj->pos.x;
         cell->obj->pos.y = CC->obj->pos.y;
-        return;
+        return true;
     }
     else{
         printf("the destination cell is not a town_exit!\n");
-        return;
+        return false;
     }
 
 }
@@ -745,7 +764,20 @@ char *Choose_random_character(){
     srand(time(0));
     return charctrs[rand()%8];
 }
-
+char *get_clicked_character(Drawable *head , int first , int second){
+    Drawable *cell = Find_Cell(head , first , second);
+    if(!cell){
+        printf("Cell not found!\n");
+        return;
+    }
+    while(head){
+        if(strlen(head->obj->tag) == 2 && head->obj->pos.x == cell->obj->pos.x+18 && head->obj->pos.y == cell->obj->pos.y+13){
+            return head->obj->tag;
+        }
+        head = head->next;
+    }
+    return "";
+}
 Card *Create_card(char *name){
     Card *new_node = (Card*)malloc(sizeof(Card));
     new_node->name = name;
@@ -798,3 +830,259 @@ void add_all_characters(Card **head){
     for(int i = 1 ; i<8 ; i++)
         append_card(*head , charctrs[i]);
 }
+void change_information_label(Drawable *head ,_clickable *label , char *new_text , SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window){
+    SDL_Color fg2 = {.a = 255 , .r = 0 , .g = 255 , .b = 0};
+    TTF_Font *font_consolas;
+    font_consolas = TTF_OpenFont("consolas.ttf" , 18);
+    for(int i = 0; i<strlen(new_text);i++){
+        char show[strlen(new_text)+1];
+        for (int j = 0 ; j<=i ; j++){
+            show[j] = new_text[j];
+        }
+        show[i+1] = '\0';
+        SDL_Surface *new_surface = TTF_RenderText_Solid(font_consolas , show,fg2);
+        SDL_FreeSurface(label->image);
+        label->image = new_surface;
+        DrawStuff(&head , window_surface , light_eff,walkable_effect);
+        draw(window);
+        clear_surface(window_surface);
+    }
+}
+void Set_all_cells_unwalkable(Drawable *head){
+    while(head){
+        if(strcmp(head->obj->tag , "MapCell")==0){
+            head->obj->cell_info->walk_able = false;
+        }
+        head = head->next;
+    }
+}
+void set_walkable(Drawable *head , int first , int second){
+    Drawable *found = Find_Cell(head , first , second);
+    if(!found)
+        return;
+    found->obj->cell_info->walk_able = true;
+}
+bool is_pit_empty(Drawable *head , Drawable *cell){
+    Drawable *pit_1 = Search_by_tag(head , "pit_hold1");
+    Drawable *pit_2 = Search_by_tag(head , "pit_hold2");
+    return !((cell->obj->pos.x == pit_1->obj->pos.x && cell->obj->pos.y == pit_1->obj->pos.y)||(cell->obj->pos.x == pit_2->obj->pos.x && cell->obj->pos.y == pit_2->obj->pos.y));
+}
+void calculate_walkable_cells(Drawable *head , int first , int second , int len){
+    if(len==0)
+        return;
+    Drawable *N = Find_Cell(head , first , second);
+    Drawable *N1 = Find_Cell(head , first , second-2);
+    Drawable *N2 = Find_Cell(head , first , second+2);
+    Drawable *N3 = Find_Cell(head , first-1 , second-1);
+    Drawable *N4 = Find_Cell(head , first+1 , second-1);
+    Drawable *N5 = Find_Cell(head , first-1 , second+1);
+    Drawable *N6 = Find_Cell(head , first+1 , second+1);
+    if(strcmp(N->obj->tag, "MapCell")== 0 && strcmp(N->obj->cell_info->cell_type, "pit")==0 && is_pit_empty(head, N)){
+        Drawable *seek = head;
+        while(seek){
+            if(strcmp(seek->obj->tag , "MapCell")==0 && strcmp(seek->obj->cell_info->cell_type , "pit")==0 && is_pit_empty(head, seek)){
+                seek->obj->cell_info->walk_able = true;
+                calculate_walkable_cells(head , seek->obj->cell_info->cell_pos.first , seek->obj->cell_info->cell_pos.second , len-1);
+            }
+            seek = seek->next;
+        }
+    }
+    if(N1)
+    if(strcmp(N1->obj->cell_info->cell_type , "house")!=0 && strcmp(N1->obj->cell_info->cell_type , "Light")!=0){
+        N1->obj->cell_info->walk_able = true;
+        calculate_walkable_cells(head , first , second-2 , len-1);
+    }
+    if(N2)
+    if(strcmp(N2->obj->cell_info->cell_type , "house")!=0 && strcmp(N2->obj->cell_info->cell_type , "Light")!=0){
+        N2->obj->cell_info->walk_able = true;
+        calculate_walkable_cells(head , first , second+2 , len-1);
+    }
+    if(N3)
+    if(strcmp(N3->obj->cell_info->cell_type , "house")!=0 && strcmp(N3->obj->cell_info->cell_type , "Light")!=0){
+        N3->obj->cell_info->walk_able = true;
+        calculate_walkable_cells(head , first-1 , second-1 , len-1);
+    }
+    if(N4)
+    if(strcmp(N4->obj->cell_info->cell_type , "house")!=0 && strcmp(N4->obj->cell_info->cell_type , "Light")!=0){
+        N4->obj->cell_info->walk_able = true;
+        calculate_walkable_cells(head , first+1 , second-1 , len-1);
+    }
+    if(N5)
+    if(strcmp(N5->obj->cell_info->cell_type , "house")!=0 && strcmp(N5->obj->cell_info->cell_type , "Light")!=0){
+        N5->obj->cell_info->walk_able = true;
+        calculate_walkable_cells(head , first-1 , second+1 , len-1);
+    }
+    if(N6)
+    if(strcmp(N6->obj->cell_info->cell_type , "house")!=0 && strcmp(N6->obj->cell_info->cell_type , "Light")!=0){
+        N6->obj->cell_info->walk_able = true;
+        calculate_walkable_cells(head , first+1 , second+1 , len-1);
+    }
+}
+void calculate_walkable_cells_MS(Drawable *head , int first , int second, int len){
+    if(len==0)
+        return;
+    Drawable *N = Find_Cell(head , first , second);
+    Drawable *N1 = Find_Cell(head , first , second-2);
+    Drawable *N2 = Find_Cell(head , first , second+2);
+    Drawable *N3 = Find_Cell(head , first-1 , second-1);
+    Drawable *N4 = Find_Cell(head , first+1 , second-1);
+    Drawable *N5 = Find_Cell(head , first-1 , second+1);
+    Drawable *N6 = Find_Cell(head , first+1 , second+1);
+    if(strcmp(N->obj->tag, "MapCell")== 0 && strcmp(N->obj->cell_info->cell_type, "pit")==0 && is_pit_empty(head, N)){
+        Drawable *seek = head;
+        while(seek){
+            if(strcmp(seek->obj->tag , "MapCell")==0 && strcmp(seek->obj->cell_info->cell_type , "pit")==0 && is_pit_empty(head, seek)){
+                seek->obj->cell_info->walk_able = true;
+                calculate_walkable_cells_MS(head , seek->obj->cell_info->cell_pos.first , seek->obj->cell_info->cell_pos.second , len-1);
+            }
+            seek = seek->next;
+        }
+    }
+    if(N1){
+        N1->obj->cell_info->walk_able = true;
+        calculate_walkable_cells_MS(head , first , second-2 , len-1);
+    }
+    if(N2){
+        N2->obj->cell_info->walk_able = true;
+        calculate_walkable_cells_MS(head , first , second+2 ,len-1);
+    }
+    if(N3){
+        N3->obj->cell_info->walk_able = true;
+        calculate_walkable_cells_MS(head , first-1 , second-1, len-1);
+    }
+    if(N4){
+        N4->obj->cell_info->walk_able = true;
+        calculate_walkable_cells_MS(head , first+1 , second-1 , len-1);
+    }
+    if(N5){
+        N5->obj->cell_info->walk_able = true;
+        calculate_walkable_cells_MS(head , first-1 , second+1 , len-1);
+    }
+    if(N6){
+        N6->obj->cell_info->walk_able = true;
+        calculate_walkable_cells_MS(head , first+1 , second+1  , len-1);
+    }
+}
+void calculate_unwalkable_cells_MS(Drawable *head){
+    while(head){
+        if(strcmp(head->obj->tag , "MapCell")==0){
+            if(strcmp(head->obj->cell_info->cell_type , "house")==0 || strcmp(head->obj->cell_info->cell_type , "Light")==0){
+                head->obj->cell_info->walk_able = false;
+            }
+        }
+        head = head->next;
+    }
+}
+Drawable *cell_under_character(Drawable *head , char *char_name){
+    Drawable *ch = Search_by_tag(head , char_name);
+    while(head){
+        if(strcmp(head->obj->tag , "MapCell")==0){
+            if(head->obj->pos.x == ch->obj->pos.x-18&&head->obj->pos.y == ch->obj->pos.y-13){
+                return head;
+            }
+        }
+        head = head->next;
+    }
+    return NULL;
+}
+void load_card(Drawable *head , char *card_name){
+    printf("reveal : %s\n" , card_name);
+    char *In_Lestrade = "Images\\INNOCENT_INSP_LESTRADE.png";
+    char *In_Jermy = "Images\\INNOCENT_JERMY_BERT.png";
+    char *In_John_Smith = "Images\\INNOCENT_JOHN_SMITH.png";
+    char *In_John_Watson = "Images\\INNOCENT_JOHN_WATSON.png";
+    char *In_Miss_Stealthy = "Images\\INNOCENT_MISS_STEALTHY.png";
+    char *In_Goodley = "Images\\INNOCENT_SERGENT_GOODLEY.png";
+    char *In_Sherlock = "Images\\INNOCENT_SHERLOCK_HOLMES.png";
+    char *In_William_Gull = "Images\\INNOCENT_WILLIAM_GULL.png";
+    if(strcmp(card_name , "JW")==0){
+        Search_by_tag(head , "Watson")->obj->image = load_image(In_John_Watson);
+    }
+    if(strcmp(card_name , "JS")==0){
+        Search_by_tag(head , "Smith")->obj->image = load_image(In_John_Smith);
+    }
+    if(strcmp(card_name , "JB")==0){
+        Search_by_tag(head , "Jermy")->obj->image = load_image(In_Jermy);
+    }
+    if(strcmp(card_name , "MS")==0){
+        Search_by_tag(head , "Stealthy")->obj->image = load_image(In_Miss_Stealthy);
+    }
+    if(strcmp(card_name , "SG")==0){
+        Search_by_tag(head , "Goodley")->obj->image = load_image(In_Goodley);
+    }
+    if(strcmp(card_name , "IL")==0){
+        Search_by_tag(head , "Lestrade")->obj->image = load_image(In_Lestrade);
+    }
+    if(strcmp(card_name , "SH")==0){
+        Search_by_tag(head , "Sherlock")->obj->image = load_image(In_Sherlock);
+    }
+    if(strcmp(card_name , "WG")==0){
+        Search_by_tag(head , "Gull")->obj->image = load_image(In_William_Gull);
+    }
+}
+void shuffle(void *array, int n, size_t size) {
+    char tmp[size];
+    char *arr = array;
+    size_t stride = size * sizeof(char);
+    if (n > 1) {
+        size_t i;
+        for (i = 0; i < n - 1; ++i) {
+            size_t rnd = (size_t) rand();
+            size_t j = i + rnd / (RAND_MAX / (n - i) + 1);
+            memcpy(tmp, arr + j * stride, size);
+            memcpy(arr + j * stride, arr + i * stride, size);
+            memcpy(arr + i * stride, tmp, size);
+        }
+    }
+}
+void shuffle_cards(Card *head){
+    int n = 0;
+    Card *seek = head;
+    while(seek){
+        n++;
+        seek = seek->next;
+    }
+    char *addr[n];
+    int cnt = 0;
+    seek = head;
+    while(seek){
+        addr[cnt] = seek->name;
+        cnt++;
+        seek = seek->next;
+    }
+    seek = head;
+    shuffle(addr , n , sizeof(char*));
+    for(int i = 0; i<n ; i++){
+    seek->name = addr[i];
+    seek = seek->next;
+    }
+}
+void burn_card(Drawable *head , char *card_name){
+    printf("\nburn : %s\n" , card_name);
+    char *file_path = "Images\\Unknown_card_burned.png";
+    if(strcmp(card_name , "JW")==0){
+        Search_by_tag(head , "Watson")->obj->image = load_image(file_path);
+    }
+    if(strcmp(card_name , "JS")==0){
+        Search_by_tag(head , "Smith")->obj->image = load_image(file_path);
+    }
+    if(strcmp(card_name , "JB")==0){
+        Search_by_tag(head , "Jermy")->obj->image = load_image(file_path);
+    }
+    if(strcmp(card_name , "MS")==0){
+        Search_by_tag(head , "Stealthy")->obj->image = load_image(file_path);
+    }
+    if(strcmp(card_name , "SG")==0){
+        Search_by_tag(head , "Goodley")->obj->image = load_image(file_path);
+    }
+    if(strcmp(card_name , "IL")==0){
+        Search_by_tag(head , "Lestrade")->obj->image = load_image(file_path);
+    }
+    if(strcmp(card_name , "SH")==0){
+        Search_by_tag(head , "Sherlock")->obj->image = load_image(file_path);
+    }
+    if(strcmp(card_name , "WG")==0){
+        Search_by_tag(head , "Gull")->obj->image = load_image(file_path);
+    }
+}
+
