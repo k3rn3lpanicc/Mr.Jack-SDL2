@@ -13,7 +13,7 @@ Card *Create_card(char *name);
 void append_card(Card *head,char *name);
 void remove_card(Card **head , char *name);
 void print_cards(Card *head);
-void add_all_characters(Card *head);
+void add_all_characters(Card **head);
 char *get_clicked_character(Drawable *head , int first , int second);
 char *TITLE_TEXT = "Mr.Jack FP project Written by k3rn3lPanic with SDL2 in C :P";
 TTF_Font *font_segoeui;
@@ -64,7 +64,7 @@ char *empty_cell = "Images\\Blocks\\empty_block.png";
 char *walkable_block = "Images\\Blocks\\walkable_block.png";
 char *light_effect = "Images\\Blocks\\light_effect.png";
 char *house_no1 = "Images\\Blocks\\house.png";
-
+bool StartsWith(const char *a, const char *b);
 SDL_Surface *load_image(char *path);
 void Play_voice(void *_voice_path);
 void Play_voice_Thread(char *_voice_path);
@@ -104,6 +104,7 @@ bool change_wall(Drawable *head , char *name , _pair dest,SDL_Surface *window_su
 void change_information_label(Drawable *head , _clickable *label , char *new_text,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window);
 char *Choose_random_character();
 void calculate_walkable_cells(Drawable *head , int first , int second , int len);
+void calculate_walkable_cells_2(Drawable *head , int first , int second , int len);
 void Set_all_cells_unwalkable(Drawable *head);
 Drawable *cell_under_character(Drawable *head , char *char_name);
 void calculate_walkable_cells_MS(Drawable *head , int first , int second , int len);
@@ -112,4 +113,6 @@ void load_card(Drawable *head , char *card_name);
 void burn_card(Drawable *head , char *card_name);
 void shuffle(void *array, int n, size_t size);
 void shuffle_cards(Card *head);
+int dist(Drawable *head , int first , int second , int gfirst , int gsecond);
+bool is_cell_wall(int first , int second);
 #endif // MRJACK_GRAPHIC_H_INCLUDED

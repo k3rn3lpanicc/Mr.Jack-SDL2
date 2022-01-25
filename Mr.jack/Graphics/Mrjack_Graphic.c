@@ -7,6 +7,7 @@
 #include "SDL_image.h"
 #include<time.h>
 #include<stdlib.h>
+#include<math.h>
 //map_blocks
 
 char *Cells_Empty_block = "Images\\Blocks\\empty_block.png";
@@ -72,7 +73,6 @@ bool StartsWith(const char *a, const char *b)
    if(strncmp(a, b, strlen(b)) == 0) return 1;
    return 0;
 }
-
 SDL_Surface *load_image(char const *path)
 {
     SDL_Surface *image_surface = IMG_Load(path);
@@ -551,12 +551,12 @@ bool switch_lamps(_pair lamp1 , _pair lamp2,Drawable *head,SDL_Surface *window_s
         }
         else{
             printf("Given block is not a light block\n");
-            return;
+            return false;
         }
     }
     else{
         printf("lamp position is null\n");
-        return;
+        return false;
     }
 }
 
@@ -692,6 +692,7 @@ bool change_character_place(Drawable *head ,char *name , _pair dest,SDL_Surface 
     }
 
 }
+
 void change_watson_direction(Drawable *head , int _direction){
     Drawable *found = Search_by_tag_2(head , "JW");
     if(found){
@@ -918,6 +919,57 @@ void calculate_walkable_cells(Drawable *head , int first , int second , int len)
         calculate_walkable_cells(head , first+1 , second+1 , len-1);
     }
 }
+void calculate_walkable_cells_2(Drawable *head , int first , int second , int len){
+    if(len==0)
+        return;
+    Drawable *N = Find_Cell(head , first , second);
+    Drawable *N1 = Find_Cell(head , first , second-2);
+    Drawable *N2 = Find_Cell(head , first , second+2);
+    Drawable *N3 = Find_Cell(head , first-1 , second-1);
+    Drawable *N4 = Find_Cell(head , first+1 , second-1);
+    Drawable *N5 = Find_Cell(head , first-1 , second+1);
+    Drawable *N6 = Find_Cell(head , first+1 , second+1);
+    if(strcmp(N->obj->tag, "MapCell")== 0 && strcmp(N->obj->cell_info->cell_type, "pit")==0 && is_pit_empty(head, N)){
+        Drawable *seek = head;
+        while(seek){
+            if(strcmp(seek->obj->tag , "MapCell")==0 && strcmp(seek->obj->cell_info->cell_type , "pit")==0 && is_pit_empty(head, seek)){
+                seek->obj->cell_info->walk_able = false;;
+                calculate_walkable_cells_2(head , seek->obj->cell_info->cell_pos.first , seek->obj->cell_info->cell_pos.second , len-1);
+            }
+            seek = seek->next;
+        }
+    }
+    if(N1)
+    if(strcmp(N1->obj->cell_info->cell_type , "house")!=0 && strcmp(N1->obj->cell_info->cell_type , "Light")!=0){
+        N1->obj->cell_info->walk_able = false;
+        calculate_walkable_cells_2(head , first , second-2 , len-1);
+    }
+    if(N2)
+    if(strcmp(N2->obj->cell_info->cell_type , "house")!=0 && strcmp(N2->obj->cell_info->cell_type , "Light")!=0){
+        N2->obj->cell_info->walk_able = false;
+        calculate_walkable_cells_2(head , first , second+2 , len-1);
+    }
+    if(N3)
+    if(strcmp(N3->obj->cell_info->cell_type , "house")!=0 && strcmp(N3->obj->cell_info->cell_type , "Light")!=0){
+        N3->obj->cell_info->walk_able = false;
+        calculate_walkable_cells_2(head , first-1 , second-1 , len-1);
+    }
+    if(N4)
+    if(strcmp(N4->obj->cell_info->cell_type , "house")!=0 && strcmp(N4->obj->cell_info->cell_type , "Light")!=0){
+        N4->obj->cell_info->walk_able = false;
+        calculate_walkable_cells_2(head , first+1 , second-1 , len-1);
+    }
+    if(N5)
+    if(strcmp(N5->obj->cell_info->cell_type , "house")!=0 && strcmp(N5->obj->cell_info->cell_type , "Light")!=0){
+        N5->obj->cell_info->walk_able = false;
+        calculate_walkable_cells_2(head , first-1 , second+1 , len-1);
+    }
+    if(N6)
+    if(strcmp(N6->obj->cell_info->cell_type , "house")!=0 && strcmp(N6->obj->cell_info->cell_type , "Light")!=0){
+        N6->obj->cell_info->walk_able = false;
+        calculate_walkable_cells_2(head , first+1 , second+1 , len-1);
+    }
+}
 void calculate_walkable_cells_MS(Drawable *head , int first , int second, int len){
     if(len==0)
         return;
@@ -1085,4 +1137,17 @@ void burn_card(Drawable *head , char *card_name){
         Search_by_tag(head , "Gull")->obj->image = load_image(file_path);
     }
 }
-
+int distance(int x1 , int y1 , int x2 , int y2){
+    return ((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1));
+}
+int distance_2(Drawable *node1 , Drawable *node2){
+    return distance(node1->obj->pos.x+50 , node1->obj->pos.y+44 , node2->obj->pos.x+50 , node2->obj->pos.y+44);
+}
+int dist(Drawable *head , int first , int second , int gfirst , int gsecond){
+    Drawable *cell1 = Find_Cell(head , first , second);
+    Drawable *cell2 = Find_Cell(head , gfirst , gsecond);
+    return distance_2(cell1 , cell2);
+}
+bool is_cell_wall(int first , int second){
+    return ((first==0 && second==2) || (first==11 &&second == 1)||(first==12 && second == 16)||(first==1&&second == 17));
+}
