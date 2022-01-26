@@ -18,10 +18,11 @@ char *get_clicked_character(Drawable *head , int first , int second);
 char *TITLE_TEXT = "Mr.Jack FP project Written by k3rn3lPanic with SDL2 in C :P";
 TTF_Font *font_segoeui;
 TTF_Font *font_segoeui_big;
+TTF_Font *font_consolas_big;
 TTF_Font *font_consolas;
 
 SDL_Color fg = {.a = 255 , .r = 255 , .g = 255 , .b = 255};
-SDL_Color fg2 = {.a = 255 , .r = 0 , .g = 255 , .b = 0};
+SDL_Color fg2 = {.a = 255 , .r = 50 , .g = 255 , .b = 50};
 
 char *fonts_segoeui = "segoeui.ttf";
 char *fonts_consolas = "consolas.ttf";
@@ -101,7 +102,7 @@ void change_watson_direction(Drawable *head , int _direction);
 bool is_cell_full(Drawable *head , int x , int y);
 bool switch_characters(Drawable *head , char *name1 , char *name2 , SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window);
 bool change_wall(Drawable *head , char *name , _pair dest,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window);
-void change_information_label(Drawable *head , _clickable *label , char *new_text,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window);
+void change_information_label(Drawable *head ,_clickable *label , char *new_text , SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window,SDL_Color fg2);
 char *Choose_random_character();
 void calculate_walkable_cells(Drawable *head , int first , int second , int len);
 void calculate_walkable_cells_2(Drawable *head , int first , int second , int len);

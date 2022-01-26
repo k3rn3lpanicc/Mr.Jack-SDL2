@@ -831,10 +831,9 @@ void add_all_characters(Card **head){
     for(int i = 1 ; i<8 ; i++)
         append_card(*head , charctrs[i]);
 }
-void change_information_label(Drawable *head ,_clickable *label , char *new_text , SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window){
-    SDL_Color fg2 = {.a = 255 , .r = 0 , .g = 255 , .b = 0};
+void change_information_label(Drawable *head ,_clickable *label , char *new_text , SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window,SDL_Color fg2){
     TTF_Font *font_consolas;
-    font_consolas = TTF_OpenFont("consolas.ttf" , 18);
+    font_consolas = TTF_OpenFont("ALGER.TTF" , 18);
     for(int i = 0; i<strlen(new_text);i++){
         char show[strlen(new_text)+1];
         for (int j = 0 ; j<=i ; j++){
@@ -848,6 +847,7 @@ void change_information_label(Drawable *head ,_clickable *label , char *new_text
         draw(window);
         clear_surface(window_surface);
     }
+    TTF_CloseFont(font_consolas);
 }
 void Set_all_cells_unwalkable(Drawable *head){
     while(head){
@@ -1214,61 +1214,155 @@ char *get_next_turn(Card **First_half , Card **Second_half , int *round , int *t
         return anser;
     }
 }
+char *get_moadel(char *name){
+    if(strcmp(name , "JW")==0)
+        return "Watson";
+    if(strcmp(name , "MS")==0)
+        return "Stealthy";
+    if(strcmp(name , "WG")==0)
+        return "Gull";
+    if(strcmp(name , "JS")==0)
+        return "Smith";
+    if(strcmp(name , "JB")==0)
+        return "Bert";
+    if(strcmp(name , "SG")==0)
+        return "Goodley";
+    if(strcmp(name , "SH")==0)
+        return "Sherlock";
+    if(strcmp(name , "IL")==0)
+        return "Lestrade";
+
+}
 void Choose_Next(Drawable *Scene , char **state , char **Chosen_Player, _clickable *information , _clickable *before , _clickable *after , _clickable *_move , _clickable *_action , Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn , SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window,_clickable *round_bel , _clickable *turn_bel , _clickable *card_bel){
+    int cround = (*round);
     char *clicked_on = get_next_turn(First_half , Second_half , round , turn , is_jacks_turn);
-    char *rr;
-    printf("\nRound %d - Turn %d\n" , (*round) , (*turn));
-    sprintf(rr , "Round %d - Turn %d\0" , (*round) , (*turn));
-    change_information_label(Scene , round_bel , ttxt,window_surface , light_eff , walk_able_eff , window);
+    char rr[200];
+    char gg[200];
+    sprintf(rr , "Round %d\0" , (*round));
+    sprintf(gg,"Turn %d/%s - %s" ,  ((*turn)-1) , (*is_jacks_turn)?"Jack":"Detective" , get_moadel(clicked_on));
+    rr[strlen(rr)]='\0';
+    gg[strlen(gg)]='\0';
+    char bb[200];
+    bb[0]='\0';
+    Card *ff = *First_half;
+    for(int i = 0; i<4 ; i++){
+        if(i!=0)
+            sprintf(bb, "%s-%s" ,bb, ff->name);
+        else
+            sprintf(bb, "%s", ff->name);
+        ff = ff->next;
+    }
+    ff = *Second_half;
+    sprintf(bb , "%s || " , bb);
+    for(int i = 0; i<4 ; i++){
+        if(i!=0)
+            sprintf(bb, "%s-%s" ,bb, ff->name);
+        else
+            sprintf(bb, "%s%s" ,bb, ff->name);
+        ff = ff->next;
+    }
+    bb[strlen(bb)]='\0';
+    SDL_Color fgg = { .r=0 , .g=100 , .b=255 };
+    SDL_Color fgg2 = { .r=200 , .g=100 , .b=255 };
+    SDL_Color fgg3 = { .r=200 , .g=0 , .b=255 };
+    SDL_Color fg2 = { .r=50 , .g=255 , .b=50 };
+
+    if(cround!=(*round))
+        change_information_label(Scene , round_bel , rr,window_surface , light_eff , walk_able_eff , window,fgg);
+    change_information_label(Scene , turn_bel , gg,window_surface , light_eff , walk_able_eff , window,fgg2);
+    if((*round)%2==1 && (*turn)==2)
+        change_information_label(Scene , card_bel , bb,window_surface , light_eff , walk_able_eff , window,fgg3);
 
     if(strcmp(clicked_on,"")==0){
-        change_information_label(Scene , information , "No character in this place",window_surface , light_eff , walk_able_eff , window);
+        change_information_label(Scene , information , "No character in this place",window_surface , light_eff , walk_able_eff , window,fg2);
     }
     else{
         (*Chosen_Player) = clicked_on;
 
         printf("Chosen_Player : %s\n" , (*Chosen_Player));
         if(strcmp((*Chosen_Player) , "JS")==0){
-            change_information_label(Scene , information , "Move lights before or after ? ",window_surface , light_eff , walk_able_eff , window);
+            change_information_label(Scene , information , "Move lights before or after ? ",window_surface , light_eff , walk_able_eff , window,fg2);
             (*before).visible = true;
             (*after).visible = true;
         }
         if(strcmp((*Chosen_Player) , "JB")==0){
-            change_information_label(Scene , information , "Move pit before or after ? ",window_surface , light_eff , walk_able_eff , window);
+            change_information_label(Scene , information , "Move pit before or after ? ",window_surface , light_eff , walk_able_eff , window,fg2);
             (*before).visible = true;
             (*after).visible = true;
         }
         if(strcmp((*Chosen_Player) , "WG")==0){
-            change_information_label(Scene , information , "Use Action or move ?",window_surface , light_eff , walk_able_eff , window);
+            change_information_label(Scene , information , "Use Action or move ?",window_surface , light_eff , walk_able_eff , window,fg2);
             (*_action).visible = true;
             (*_move).visible = true;
             (*state) = "action_move";
         }
         if(strcmp((*Chosen_Player) , "SG")==0){
-            change_information_label(Scene , information , "Action before or after ? ",window_surface , light_eff , walk_able_eff , window);
+            change_information_label(Scene , information , "Action before or after ? ",window_surface , light_eff , walk_able_eff , window,fg2);
             (*before).visible = true;
             (*after).visible = true;
         }
         if(strcmp((*Chosen_Player) , "IL")==0){
             (*state) = "moving_player";
             walkable_character(Scene , "IL" , 3);
-            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
+            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window,fg2);
         }
         if(strcmp((*Chosen_Player) , "SH")==0){
             (*state) = "moving_player";
             walkable_character(Scene , "SH" , 3);
-            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
+            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window,fg2);
         }
         if(strcmp((*Chosen_Player) , "JW")==0){
             (*state) = "moving_player";
             walkable_character(Scene , "JW" , 3);
-            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
+            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window,fg2);
         }
         if(strcmp((*Chosen_Player) , "MS")==0){
             (*state) = "moving_player";
             walkable_character_MS(Scene , "MS" , 4);
-            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
+            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window,fg2);
         }
     }
 
+}
+void change_information_label_2(Drawable *head ,_clickable *label , char *new_text , SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window,SDL_Color fg2){
+    TTF_Font *font_consolas;
+    font_consolas = TTF_OpenFont("ALGER.TTF" , 60);
+    for(int i = 0; i<strlen(new_text);i++){
+        char show[strlen(new_text)+1];
+        for (int j = 0 ; j<=i ; j++){
+            show[j] = new_text[j];
+        }
+        show[i+1] = '\0';
+        SDL_Surface *new_surface = TTF_RenderText_Solid(font_consolas , show,fg2);
+        SDL_FreeSurface(label->image);
+        label->image = new_surface;
+        DrawStuff(&head , window_surface , light_eff,walkable_effect);
+        draw(window);
+        clear_surface(window_surface);
+    }
+    TTF_CloseFont(font_consolas);
+}
+void Detective_Wins(Drawable *head , _clickable *Win_Label ,SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window){
+    Play_voice("Sounds\\Yeay.mp3");
+    Win_Label->visible = true;
+    SDL_Color fg2 = { .r=50 , .g=255 , .b=50 };
+    change_information_label_2(head , Win_Label , "Detective Won!",window_surface , light_eff , walk_able_eff , window,fg2);
+}
+void Jack_Wins(Drawable *head , _clickable *Win_Label ,SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window){
+    Play_voice("Sounds\\Game_over.mp3");
+    Win_Label->visible = true;
+    SDL_Color fg2 = { .r=50 , .g=50 , .b=255 };
+    change_information_label_2(head , Win_Label , "Mr.Jack Won!",window_surface , light_eff , walk_able_eff , window,fg2);
+}
+char *dest_char_name(Drawable *head , int first , int second){
+    Drawable *cell = Find_Cell(head , first , second);
+    while(head){
+        if(strlen(head->obj->tag)==2){
+            if(head->obj->pos.x-18 == cell->obj->pos.x && head->obj->pos.y-13 == cell->obj->pos.y){
+                return head->obj->tag;
+            }
+        }
+        head = head->next;
+    }
+    return "";
 }

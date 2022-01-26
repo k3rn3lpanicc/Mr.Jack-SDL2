@@ -32,7 +32,8 @@ int main(int argc , char** argv){
     Init();
     font_segoeui = TTF_OpenFont("segoeui.ttf" , 20);
     font_segoeui_big = TTF_OpenFont("segoeui.ttf" , 30);
-    font_consolas = TTF_OpenFont("consolas.ttf" , 18);
+    font_consolas_big = TTF_OpenFont("ALGER.ttf" , 60);
+    font_consolas = TTF_OpenFont("ALGER.TTF" , 18);
     int Volume = 100;
     Mix_Music *bgm = Mix_LoadMUS("Sounds\\bg1.mp3");
     Mix_PlayMusic(bgm,-1);
@@ -97,10 +98,13 @@ int main(int argc , char** argv){
     SDL_Surface *_one = TTF_RenderText_Solid(font_consolas , "one",fg2);
     SDL_Surface *_two = TTF_RenderText_Solid(font_consolas , "two",fg2);
     SDL_Surface *_three = TTF_RenderText_Solid(font_consolas , "three",fg2);
-
-    SDL_Surface *game_round_label = TTF_RenderText_Solid(font_consolas , "round 1",fg2);
+    SDL_Color fgg = { .r=0 , .g=100 , .b=255 };
+    SDL_Surface *game_round_label = TTF_RenderText_Solid(font_consolas , "Round 1",fgg);
     SDL_Surface *turn_label = TTF_RenderText_Solid(font_consolas , "Turn1/Detective",fg2);
     SDL_Surface *Cards_in_this_round_label = TTF_RenderText_Solid(font_consolas , "This round : ",fg2);
+
+
+    SDL_Surface *won_label = TTF_RenderText_Solid(font_consolas_big , "Detective Won",fg2);
 
 
 
@@ -116,11 +120,11 @@ int main(int argc , char** argv){
     _clickable one_ = {.tag = "one" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1100 , .y = 820 },.image = _one};
     _clickable two_ = {.tag = "two" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1170 , .y = 820 },.image = _two};
     _clickable three_ = {.tag = "three" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1240 , .y = 820 },.image = _three};
-
-    _clickable round_bel = {.tag = "game_round" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1050 , .y = 50 },.image = game_round_label};
-    _clickable turn_bel = {.tag = "round_turn" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1050 , .y = 100 },.image = turn_label};
-    _clickable card_bel = {.tag = "round_cards" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1050 , .y = 160 },.image = Cards_in_this_round_label};
-
+    _clickable Won_Label = {.tag = "Won_Label" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 422 , .y = 350 },.image = won_label};
+    //422 , 358
+    _clickable round_bel = {.tag = "game_round" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 980 , .y = 20 },.image = game_round_label};
+    _clickable turn_bel = {.tag = "round_turn" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 980 , .y = 40 },.image = turn_label};
+    _clickable card_bel = {.tag = "round_cards" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 980 , .y = 60 },.image = Cards_in_this_round_label};
 
     int xx , yy;
     xx = 1350;
@@ -195,7 +199,6 @@ int main(int argc , char** argv){
     cell->obj->cell_info->lighten = true;
     Add_obj(Scene , Create_node(&light5));
 
-
     _clickable light6 = {.tag = "LI6" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1450 , .y = 750 },.image = load_image("Images\\Blocks\\light.png")};
     cell = Find_Cell(Scene ,11,5);
     light6.pos.x = cell->obj->pos.x;
@@ -228,7 +231,6 @@ int main(int argc , char** argv){
     _clickable IL = {.tag = "IL" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos ={cell->obj->pos.x+18,cell->obj->pos.y+13},.image = load_image("Images\\Characters\\Lestrade.png")};
     IL.cell_info = cell->obj->cell_info;
     Add_obj(Scene , Create_node(&IL));
-
 
     _clickable JS = {.tag = "JS" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1450 , .y = 750 },.image = load_image("Images\\Characters\\John_Smith.png")};
     cell = Find_Cell(Scene ,4,8);
@@ -313,9 +315,9 @@ int main(int argc , char** argv){
     Add_obj(Scene , Create_node(&two_));
     Add_obj(Scene , Create_node(&three_));
     Add_obj(Scene , Create_node(&round_bel));
-    //Add_obj(Scene , Create_node(&turn_bel));
+    Add_obj(Scene , Create_node(&turn_bel));
     Add_obj(Scene , Create_node(&card_bel));
-
+    Add_obj(Scene , Create_node(&Won_Label));
     Map_Lights(Scene);
     Drawable *seek = Scene;
     while(seek){
@@ -373,7 +375,7 @@ int main(int argc , char** argv){
         //if(next_chosen)
            // printf("Chosen : %s and it is %s's turn\n" , next_chosen , is_jack_turn?"Jack":"Detective");
     //}
-
+    Detective_Wins(Scene , &Won_Label , window_surface , light_effect , walk_able_eff , window);
     while(keep_window_open)
     {
         Map_Lights(Scene);
@@ -424,7 +426,7 @@ int main(int argc , char** argv){
                                     state = "WG_action";
                                     _action.visible = false;
                                     _move.visible = false;
-                                    change_information_label(Scene , &information , "Select Player to switch with" , window_surface , light_eff , walk_able_eff , window);
+                                    change_information_label(Scene , &information , "Select Player to switch with" , window_surface , light_eff , walk_able_eff , window,fg2);
                                 }
                             }
                             else if(strcmp(seek->obj->tag , "move")==0){
@@ -433,7 +435,7 @@ int main(int argc , char** argv){
                                     _action.visible = false;
                                     _move.visible = false;
                                     walkable_character(Scene , "WG" , 3);
-                                    change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff , window);
+                                    change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff , window,fg2);
                                 }
                             }
                             else if(strcmp(seek->obj->tag , "one")==0){
@@ -455,17 +457,17 @@ int main(int argc , char** argv){
                                                 two_rund++;
                                                 walkable_character(Scene , "SG" , 3);
                                                 state = "moving_player";
-                                                change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff, window);
+                                                change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff, window,fg2);
                                             }
                                         }
                                         else{
                                             goodley_chosen = "";
-                                            change_information_label(Scene , &information , "Select Character to move",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Select Character to move",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                     else{
                                             goodley_chosen = "";
-                                            change_information_label(Scene , &information , "Failed/Select character to move",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Failed/Select character to move",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                     one_.visible = false;
                                     two_.visible = false;
@@ -489,19 +491,19 @@ int main(int argc , char** argv){
                                                 two_rund++;
                                                 walkable_character(Scene , "SG" , 3);
                                                 state = "moving_player";
-                                                change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff, window);
+                                                change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff, window,fg2);
                                             }
                                             steps = 0;
 
                                         }
                                         else{
                                             goodley_chosen = "";
-                                            change_information_label(Scene , &information , "Select Character to move",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Select Character to move",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                     else{
                                         goodley_chosen = "";
-                                        change_information_label(Scene , &information , "Failde/Select Character to move",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "Failde/Select Character to move",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                     one_.visible = false;
                                     two_.visible = false;
@@ -525,18 +527,18 @@ int main(int argc , char** argv){
                                             else{
                                                 two_rund++;
                                                 walkable_character(Scene , "SG" , 3);
-                                                change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff, window);
+                                                change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff, window,fg2);
                                                 state = "moving_player";
                                             }
                                         }
                                         else{
                                             goodley_chosen = "";
-                                            change_information_label(Scene , &information , "Select Character to move",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Select Character to move",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                     else{
                                         goodley_chosen = "";
-                                        change_information_label(Scene , &information , "Failed/Select Character to move",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "Failed/Select Character to move",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                     one_.visible = false;
                                     two_.visible = false;
@@ -545,15 +547,15 @@ int main(int argc , char** argv){
                             }
                             if(strcmp(seek->obj->tag , "before")==0){
                                 if(strcmp(Chosen_Player , "JS")==0){
-                                    change_information_label(Scene , &information , "Select the Light" , window_surface , light_eff , walk_able_eff , window);
+                                    change_information_label(Scene , &information , "Select the Light" , window_surface , light_eff , walk_able_eff , window,fg2);
                                     state = "moving_light";
                                 }
                                 else if(strcmp(Chosen_Player , "SG")==0){
                                     state = "SG_action";
-                                    change_information_label(Scene , &information , "Select the player" , window_surface , light_eff , walk_able_eff , window);
+                                    change_information_label(Scene , &information , "Select the player" , window_surface , light_eff , walk_able_eff , window,fg2);
                                 }
                                 else if(strcmp(Chosen_Player , "JB")==0){
-                                    change_information_label(Scene , &information , "Select the pithold" , window_surface , light_eff , walk_able_eff , window);
+                                    change_information_label(Scene , &information , "Select the pithold" , window_surface , light_eff , walk_able_eff , window,fg2);
                                     state = "JB_action";
                                 }
                                 before.visible = false;
@@ -563,15 +565,15 @@ int main(int argc , char** argv){
                                 if(strcmp(Chosen_Player , "JS")==0){
                                     state = "moving_player";
                                     walkable_character(Scene , "JS" , 3);
-                                    change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff , window);
+                                    change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff , window,fg2);
                                 }
                                 else if(strcmp(Chosen_Player , "SG")==0){
                                     state = "moving_player";
                                     walkable_character(Scene , "SG" , 3);
-                                    change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff , window);
+                                    change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff , window,fg2);
                                 }
                                 else if(strcmp(Chosen_Player , "JB")==0){
-                                    change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff, window);
+                                    change_information_label(Scene , &information , "Select the Cell to move" , window_surface , light_eff , walk_able_eff, window,fg2);
                                     walkable_character(Scene , "JB" , 3);
                                     state = "moving_player";
                                 }
@@ -602,7 +604,7 @@ int main(int argc , char** argv){
                                         first_lamp.first = first;
                                         first_lamp.second = seco;
                                         selected_lamp_cnt++;
-                                        change_information_label(Scene , &information , "Select Place to move light to",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "Select Place to move light to",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                     else{
                                         second_lamp.first = first;
@@ -621,12 +623,12 @@ int main(int argc , char** argv){
                                                 two_rund++;
                                                 state = "moving_player";
                                                 walkable_character(Scene , "JS" , 3);
-                                                change_information_label(Scene , &information , "Select the Cell to move",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Select the Cell to move",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
                                         else{
                                             selected_lamp_cnt = 0;
-                                            change_information_label(Scene , &information , "Select the Light",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Select the Light",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
 
                                     }
@@ -634,11 +636,11 @@ int main(int argc , char** argv){
                                 if(strcmp(Chosen_Player , "SG")==0&&strcmp(state ,"SG_action")==0){
                                     char *clicked_on = get_clicked_character(Scene , first , seco);
                                     if(strcmp(clicked_on,"")==0){
-                                        change_information_label(Scene , &information , "No character in this place",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "No character in this place",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                     else{
                                         goodley_chosen = clicked_on;
-                                        change_information_label(Scene , &information , "How many cells u want to move?",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "How many cells u want to move?",window_surface , light_eff , walk_able_eff , window,fg2);
                                         if(steps==0){
                                             one_.visible = true;
                                             two_.visible = true;
@@ -659,7 +661,7 @@ int main(int argc , char** argv){
                                         first_lamp.first = first;
                                         first_lamp.second = seco;
                                         selected_lamp_cnt++;
-                                        change_information_label(Scene , &information , "Select Place to move pit to",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "Select Place to move pit to",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                     else{
                                         second_lamp.first = first;
@@ -678,12 +680,12 @@ int main(int argc , char** argv){
                                                 two_rund++;
                                                 state = "moving_player";
                                                 walkable_character(Scene , "JB" , 3);
-                                                change_information_label(Scene , &information , "Select the Cell to move",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Select the Cell to move",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
                                         else{
                                             selected_lamp_cnt = 0;
-                                            change_information_label(Scene , &information , "Select the pithold",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Select the pithold",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                 }
@@ -704,19 +706,28 @@ int main(int argc , char** argv){
                                                 else{
                                                     two_rund++;
                                                     state = "JB_action";
-                                                    change_information_label(Scene , &information , "Select pithold",window_surface , light_eff , walk_able_eff , window);
+                                                    change_information_label(Scene , &information , "Select pithold",window_surface , light_eff , walk_able_eff , window,fg2);
                                                 }
                                             }
                                             else{
-                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window);
+                                                char *tmpname = dest_char_name(Scene , dest.first , dest.second);
+                                                if(strcmp(tmpname , MrJacksName)==0&&(!is_jack_turn)){
+                                                    Detective_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff, window);
+                                                }
+                                                else if((!is_jack_turn) && strcmp(tmpname , MrJacksName)!=0){
+                                                    Jack_Wins(Scene ,&Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                }
+                                                else{
+                                                    change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
+                                                }
                                             }
                                         }
                                         else{
-                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                     else{
-                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                 }
                                 else if(strcmp(Chosen_Player , "WG")==0&&strcmp(state ,"WG_action")==0){
@@ -729,7 +740,7 @@ int main(int argc , char** argv){
 
                                     }
                                     else{
-                                        change_information_label(Scene , &information , "Select Character again",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "Select Character again",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                 }
 
@@ -747,16 +758,16 @@ int main(int argc , char** argv){
 
                                             }
                                             else{
-                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
 
                                         }
                                         else{
-                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                     else{
-                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                 }
                                 else if(strcmp(Chosen_Player , "JS")==0&&strcmp(state ,"moving_player")==0){
@@ -776,19 +787,19 @@ int main(int argc , char** argv){
                                                 else{
                                                     two_rund++;
                                                     state = "moving_light";
-                                                    change_information_label(Scene , &information , "Select Light",window_surface , light_eff , walk_able_eff , window);
+                                                    change_information_label(Scene , &information , "Select Light",window_surface , light_eff , walk_able_eff , window,fg2);
                                                 }
                                             }
                                             else{
-                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
                                         else{
-                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                     else{
-                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
 
                                 }
@@ -800,18 +811,18 @@ int main(int argc , char** argv){
                                             if(moved){
                                                 Set_all_cells_unwalkable(Scene);
                                                 state = "moving_wall";
-                                                change_information_label(Scene , &information , "Select Wall",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Select Wall",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                             else{
-                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
                                         else{
-                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                     else{
-                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                 }
                                 else if(strcmp(Chosen_Player, "SH")==0&&strcmp(state ,"moving_player")==0){
@@ -848,7 +859,7 @@ int main(int argc , char** argv){
 
                                                 }
                                                 else{
-                                                    change_information_label(Scene , &information , "No Cards left/Select Character",window_surface , light_eff , walk_able_eff , window);
+                                                    change_information_label(Scene , &information , "No Cards left/Select Character",window_surface , light_eff , walk_able_eff , window,fg2);
                                                 }
                                                 printf("Cards Jack picked : \n");
                                                 print_cards(Mr_jack_susCards);
@@ -856,15 +867,15 @@ int main(int argc , char** argv){
                                                 print_cards(Detective_susCards);
                                             }
                                             else{
-                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
                                         else{
-                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                     else{
-                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                 }
                                 else if(strcmp(Chosen_Player, "MS")==0&&strcmp(state ,"moving_player")==0){
@@ -880,15 +891,15 @@ int main(int argc , char** argv){
 
                                             }
                                             else{
-                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
                                         else{
-                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                     else{
-                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                 }
                                 else if(strcmp(Chosen_Player, "JW")==0&&strcmp(state ,"moving_player")==0){
@@ -905,18 +916,18 @@ int main(int argc , char** argv){
                                                 arrow3.visible = true;
                                                 arrow4.visible = true;
                                                 arrow5.visible = true;
-                                                change_information_label(Scene , &information , "Select Direction : ",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Select Direction : ",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                             else{
-                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
                                         else{
-                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                     else{
-                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                 }
                                 else if(strcmp(Chosen_Player, "SG")==0&&strcmp(state ,"moving_player")==0){
@@ -936,19 +947,19 @@ int main(int argc , char** argv){
                                                 else{
                                                     two_rund++;
                                                     state = "SG_action";
-                                                    change_information_label(Scene , &information , "Select Character to move",window_surface , light_eff , walk_able_eff , window);
+                                                    change_information_label(Scene , &information , "Select Character to move",window_surface , light_eff , walk_able_eff , window,fg2);
                                                 }
                                             }
                                             else{
-                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
                                         else{
-                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Selected Block is not walkable",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
                                     }
                                     else{
-                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window);
+                                        change_information_label(Scene , &information , "The Destination Cell can't be full",window_surface , light_eff , walk_able_eff , window,fg2);
                                     }
                                 }
                                 else if(strcmp(Chosen_Player, "IL")==0&&strcmp(state ,"moving_wall")==0){
@@ -966,12 +977,13 @@ int main(int argc , char** argv){
                                                 chosen_wall = "wall2";
                                             }
                                             else{
-                                                change_information_label(Scene , &information , "Select Wall again",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Select Wall again",window_surface , light_eff , walk_able_eff , window,fg2);
                                                 continue;
                                             }
                                             printf("selected wall : %s\n" , chosen_wall);
-                                            change_information_label(Scene , &information , "Select Place to move wall to",window_surface , light_eff , walk_able_eff , window);
+                                            change_information_label(Scene , &information , "Select Place to move wall to",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
+
                                         else{
                                             second_lamp.first = first;
                                             second_lamp.second = seco;
@@ -986,7 +998,7 @@ int main(int argc , char** argv){
                                             }
                                             else{
                                                 chosen_wall = "";
-                                                change_information_label(Scene , &information , "Select the Wall",window_surface , light_eff , walk_able_eff , window);
+                                                change_information_label(Scene , &information , "Select the Wall",window_surface , light_eff , walk_able_eff , window,fg2);
                                                 selected_lamp_cnt = 0;
                                             }
                                         }
