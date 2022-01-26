@@ -115,4 +115,8 @@ void shuffle(void *array, int n, size_t size);
 void shuffle_cards(Card *head);
 int dist(Drawable *head , int first , int second , int gfirst , int gsecond);
 bool is_cell_wall(int first , int second);
+void Create_Cards(Card **First_half , Card **Second_half);
+char *get_next_turn(Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn);
+void Choose_Next(Drawable *Scene , char **state , char **Chosen_Player, _clickable *information , _clickable *before , _clickable *after , _clickable *_move , _clickable *_action , Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn , SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window,_clickable *round_bel , _clickable *turn_bel , _clickable *card_bel);
+
 #endif // MRJACK_GRAPHIC_H_INCLUDED

@@ -2,19 +2,19 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="Main.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="-3" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="82112" topLine="1193" />
-		</Cursor>
-	</File>
 	<File name="Graphics\Mrjack_Graphic.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="-3" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="5166" topLine="81" />
+			<Cursor1 position="7023" topLine="87" />
 		</Cursor>
 	</File>
-	<File name="Graphics\Mrjack_Graphic.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
+	<File name="Main.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="-3" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="39960" topLine="847" />
+			<Cursor1 position="21309" topLine="516" />
+		</Cursor>
+	</File>
+	<File name="Graphics\Mrjack_Graphic.c" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="44564" topLine="1210" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

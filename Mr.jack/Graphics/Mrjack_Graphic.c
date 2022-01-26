@@ -1151,3 +1151,124 @@ int dist(Drawable *head , int first , int second , int gfirst , int gsecond){
 bool is_cell_wall(int first , int second){
     return ((first==0 && second==2) || (first==11 &&second == 1)||(first==12 && second == 16)||(first==1&&second == 17));
 }
+
+void Create_Cards(Card **First_half , Card **Second_half){
+    Card *Main_Cards;
+    add_all_characters(&Main_Cards);
+    shuffle_cards(Main_Cards);
+    *First_half = Create_card(Main_Cards->name);
+    remove_card(&Main_Cards,Main_Cards->name);
+    for(int i =0;i<3;i++){
+        append_card(*First_half,Main_Cards->name);
+        remove_card(&Main_Cards,Main_Cards->name);
+    }
+    *Second_half = Create_card(Main_Cards->name);
+    remove_card(&Main_Cards,Main_Cards->name);
+    for(int i =0;i<3;i++){
+        append_card(*Second_half,Main_Cards->name);
+        remove_card(&Main_Cards,Main_Cards->name);
+    }
+
+}
+void end_game(){
+    //todo
+}
+char *get_next_turn(Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn){
+    if((*round)==9){
+        end_game();
+    }
+    if((*turn)==5){
+        (*round)++;
+        (*turn) = 1;
+        if((*round)%2==1){
+            (*First_half) = NULL;
+            (*Second_half) = NULL;
+            Create_Cards(First_half , Second_half);
+        }
+        return get_next_turn(First_half , Second_half,round, turn , is_jacks_turn);
+    }
+    if((*round)%2==1){
+        if((*turn) == 1 || (*turn)==4)
+            (*is_jacks_turn) = false;
+        else
+            (*is_jacks_turn) = true;
+        char *anser="";
+        Card *seek = *First_half;
+        for(int i = 0 ;i<(*turn)-1 ;i++)
+            seek = seek->next;
+        anser = seek->name;
+        (*turn)++;
+        return anser;
+    }
+    else{
+        if((*turn) == 1 || (*turn) == 4)
+            (*is_jacks_turn) = true;
+        else
+            (*is_jacks_turn) = false;
+        char *anser="";
+        Card *seek = *Second_half;
+        for(int i = 0 ;i<(*turn)-1 ;i++)
+            seek = seek->next;
+        anser = seek->name;
+        (*turn)++;
+        return anser;
+    }
+}
+void Choose_Next(Drawable *Scene , char **state , char **Chosen_Player, _clickable *information , _clickable *before , _clickable *after , _clickable *_move , _clickable *_action , Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn , SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window,_clickable *round_bel , _clickable *turn_bel , _clickable *card_bel){
+    char *clicked_on = get_next_turn(First_half , Second_half , round , turn , is_jacks_turn);
+    char *rr;
+    printf("\nRound %d - Turn %d\n" , (*round) , (*turn));
+    sprintf(rr , "Round %d - Turn %d\0" , (*round) , (*turn));
+    change_information_label(Scene , round_bel , ttxt,window_surface , light_eff , walk_able_eff , window);
+
+    if(strcmp(clicked_on,"")==0){
+        change_information_label(Scene , information , "No character in this place",window_surface , light_eff , walk_able_eff , window);
+    }
+    else{
+        (*Chosen_Player) = clicked_on;
+
+        printf("Chosen_Player : %s\n" , (*Chosen_Player));
+        if(strcmp((*Chosen_Player) , "JS")==0){
+            change_information_label(Scene , information , "Move lights before or after ? ",window_surface , light_eff , walk_able_eff , window);
+            (*before).visible = true;
+            (*after).visible = true;
+        }
+        if(strcmp((*Chosen_Player) , "JB")==0){
+            change_information_label(Scene , information , "Move pit before or after ? ",window_surface , light_eff , walk_able_eff , window);
+            (*before).visible = true;
+            (*after).visible = true;
+        }
+        if(strcmp((*Chosen_Player) , "WG")==0){
+            change_information_label(Scene , information , "Use Action or move ?",window_surface , light_eff , walk_able_eff , window);
+            (*_action).visible = true;
+            (*_move).visible = true;
+            (*state) = "action_move";
+        }
+        if(strcmp((*Chosen_Player) , "SG")==0){
+            change_information_label(Scene , information , "Action before or after ? ",window_surface , light_eff , walk_able_eff , window);
+            (*before).visible = true;
+            (*after).visible = true;
+        }
+        if(strcmp((*Chosen_Player) , "IL")==0){
+            (*state) = "moving_player";
+            walkable_character(Scene , "IL" , 3);
+            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
+        }
+        if(strcmp((*Chosen_Player) , "SH")==0){
+            (*state) = "moving_player";
+            walkable_character(Scene , "SH" , 3);
+            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
+        }
+        if(strcmp((*Chosen_Player) , "JW")==0){
+            (*state) = "moving_player";
+            walkable_character(Scene , "JW" , 3);
+            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
+        }
+        if(strcmp((*Chosen_Player) , "MS")==0){
+            (*state) = "moving_player";
+            walkable_character_MS(Scene , "MS" , 4);
+            change_information_label(Scene , information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
+        }
+    }
+
+}

@@ -98,6 +98,11 @@ int main(int argc , char** argv){
     SDL_Surface *_two = TTF_RenderText_Solid(font_consolas , "two",fg2);
     SDL_Surface *_three = TTF_RenderText_Solid(font_consolas , "three",fg2);
 
+    SDL_Surface *game_round_label = TTF_RenderText_Solid(font_consolas , "round 1",fg2);
+    SDL_Surface *turn_label = TTF_RenderText_Solid(font_consolas , "Turn1/Detective",fg2);
+    SDL_Surface *Cards_in_this_round_label = TTF_RenderText_Solid(font_consolas , "This round : ",fg2);
+
+
 
     _clickable labeld = {.tag = "dd" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos = { .x = __x , .y = __y-35 },.image = text_surface};
     _clickable text_box_d = {.tag = "text_box" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos = { .x = __x , .y = __y+35 },.image = text_box};
@@ -111,6 +116,11 @@ int main(int argc , char** argv){
     _clickable one_ = {.tag = "one" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1100 , .y = 820 },.image = _one};
     _clickable two_ = {.tag = "two" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1170 , .y = 820 },.image = _two};
     _clickable three_ = {.tag = "three" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1240 , .y = 820 },.image = _three};
+
+    _clickable round_bel = {.tag = "game_round" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1050 , .y = 50 },.image = game_round_label};
+    _clickable turn_bel = {.tag = "round_turn" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1050 , .y = 100 },.image = turn_label};
+    _clickable card_bel = {.tag = "round_cards" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1050 , .y = 160 },.image = Cards_in_this_round_label};
+
 
     int xx , yy;
     xx = 1350;
@@ -302,6 +312,10 @@ int main(int argc , char** argv){
     Add_obj(Scene , Create_node(&one_));
     Add_obj(Scene , Create_node(&two_));
     Add_obj(Scene , Create_node(&three_));
+    Add_obj(Scene , Create_node(&round_bel));
+    //Add_obj(Scene , Create_node(&turn_bel));
+    Add_obj(Scene , Create_node(&card_bel));
+
     Map_Lights(Scene);
     Drawable *seek = Scene;
     while(seek){
@@ -325,7 +339,6 @@ int main(int argc , char** argv){
     int cmn=0;
     char *chosen_wall = "";
     char *Chosen_Player = "";
-    bool Choosing_Player = false;
     char *state = "";
     int two_rund = 0;
     //----------------------------------
@@ -346,6 +359,20 @@ int main(int argc , char** argv){
     bool is_jack_turn = false;
     char *goodley_chosen = "";
     int steps = 0;
+    int game_round = 1;
+    int round_turn = 1;
+    Card *First_half;
+    Card *Second_half;
+    Create_Cards(&First_half , &Second_half);
+    printf("First half : \n");
+    print_cards(First_half);
+    printf("Second Half : \n");
+    print_cards(Second_half);
+    //for(int i = 0; i<32;i++){
+        //char *next_chosen = get_next_turn(&First_half , &Second_half , &game_round , &round_turn , &is_jack_turn);
+        //if(next_chosen)
+           // printf("Chosen : %s and it is %s's turn\n" , next_chosen , is_jack_turn?"Jack":"Detective");
+    //}
 
     while(keep_window_open)
     {
@@ -419,10 +446,10 @@ int main(int argc , char** argv){
                                             steps = 0;
                                            if(two_rund==1){
                                                 Chosen_Player = "";
-                                                Choosing_Player = true;
                                                 state = "";
                                                 two_rund = 0;
-                                                change_information_label(Scene , &information , "Select Character" , window_surface , light_eff , walk_able_eff , window);
+                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                //change_information_label(Scene , &information , "Select Character" , window_surface , light_eff , walk_able_eff , window);
                                             }
                                             else{
                                                 two_rund++;
@@ -454,10 +481,9 @@ int main(int argc , char** argv){
                                         if(steps==3){
                                             if(two_rund==1){
                                                 Chosen_Player = "";
-                                                Choosing_Player = true;
                                                 state = "";
                                                 two_rund = 0;
-                                                change_information_label(Scene , &information , "Select Character" , window_surface , light_eff , walk_able_eff , window);
+                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
                                             }
                                             else{
                                                 two_rund++;
@@ -491,10 +517,10 @@ int main(int argc , char** argv){
                                             steps = 0;
                                            if(two_rund==1){
                                                 Chosen_Player = "";
-                                                Choosing_Player = true;
                                                 state = "";
                                                 two_rund = 0;
-                                                change_information_label(Scene , &information , "Select Character" , window_surface , light_eff , walk_able_eff , window);
+                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                             }
                                             else{
                                                 two_rund++;
@@ -560,68 +586,16 @@ int main(int argc , char** argv){
                                 arrow3.visible = false;
                                 arrow4.visible = false;
                                 arrow5.visible = false;
-                                Choosing_Player = true;
                                 Chosen_Player = "";
                                 state = "";
-                                change_information_label(Scene , &information , "Select Character",window_surface , light_eff , walk_able_eff , window);
+                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                             }
                             if(strcmp(seek->obj->tag , "MapCell")==0){
                                 if(is_mouse_inside_cell(mouse_pos , seek->obj->pos)){
                                 printf("Clicked on : %d, %d\n" , seek->obj->cell_info->cell_pos.first,seek->obj->cell_info->cell_pos.second);
                                 int first = seek->obj->cell_info->cell_pos.first;
                                 int seco = seek->obj->cell_info->cell_pos.second;
-                                if(Choosing_Player){
-                                    char *clicked_on = get_clicked_character(Scene , first , seco);
-                                    if(strcmp(clicked_on,"")==0){
-                                        change_information_label(Scene , &information , "No character in this place",window_surface , light_eff , walk_able_eff , window);
-                                    }
-                                    else{
-                                        Chosen_Player = clicked_on;
-                                        printf("Chosen_Player : %s\n" , Chosen_Player);
-                                        if(strcmp(Chosen_Player , "JS")==0){
-                                            change_information_label(Scene , &information , "Move lights before or after ? ",window_surface , light_eff , walk_able_eff , window);
-                                            before.visible = true;
-                                            after.visible = true;
-                                        }
-                                        if(strcmp(Chosen_Player , "JB")==0){
-                                            change_information_label(Scene , &information , "Move pit before or after ? ",window_surface , light_eff , walk_able_eff , window);
-                                            before.visible = true;
-                                            after.visible = true;
-                                        }
-                                        if(strcmp(Chosen_Player , "WG")==0){
-                                            change_information_label(Scene , &information , "Use Action or move ?",window_surface , light_eff , walk_able_eff , window);
-                                            _action.visible = true;
-                                            _move.visible = true;
-                                            state = "action_move";
-                                        }
-                                        if(strcmp(Chosen_Player , "SG")==0){
-                                            change_information_label(Scene , &information , "Action before or after ? ",window_surface , light_eff , walk_able_eff , window);
-                                            before.visible = true;
-                                            after.visible = true;
-                                        }
-                                        if(strcmp(Chosen_Player , "IL")==0){
-                                            state = "moving_player";
-                                            walkable_character(Scene , "IL" , 3);
-                                            change_information_label(Scene , &information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
-                                        }
-                                        if(strcmp(Chosen_Player , "SH")==0){
-                                            state = "moving_player";
-                                            walkable_character(Scene , "SH" , 3);
-                                            change_information_label(Scene , &information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
-                                        }
-                                        if(strcmp(Chosen_Player , "JW")==0){
-                                            state = "moving_player";
-                                            walkable_character(Scene , "JW" , 3);
-                                            change_information_label(Scene , &information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
-                                        }
-                                        if(strcmp(Chosen_Player , "MS")==0){
-                                            state = "moving_player";
-                                            walkable_character_MS(Scene , "MS" , 4);
-                                            change_information_label(Scene , &information , "Select Cell to Move",window_surface , light_eff , walk_able_eff , window);
-                                        }
-                                        Choosing_Player = false;
-                                    }
-                                }
 
                                 if(strcmp(Chosen_Player , "JS")==0&&strcmp(state ,"moving_light")==0){
                                     if(selected_lamp_cnt==0){
@@ -638,10 +612,10 @@ int main(int argc , char** argv){
                                             selected_lamp_cnt = 0;
                                             if(two_rund==1){
                                                 Chosen_Player = "";
-                                                Choosing_Player = true;
                                                 state = "";
                                                 two_rund = 0;
-                                                change_information_label(Scene , &information , "Select Character",window_surface , light_eff , walk_able_eff , window);
+                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                             }
                                             else{
                                                 two_rund++;
@@ -695,10 +669,10 @@ int main(int argc , char** argv){
                                             selected_lamp_cnt = 0;
                                             if(two_rund==1){
                                                 Chosen_Player = "";
-                                                Choosing_Player = true;
                                                 state = "";
                                                 two_rund = 0;
-                                                change_information_label(Scene , &information , "Select Character",window_surface , light_eff , walk_able_eff , window);
+                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                             }
                                             else{
                                                 two_rund++;
@@ -723,9 +697,9 @@ int main(int argc , char** argv){
                                                 if(two_rund==1){
                                                     state = "";
                                                     Chosen_Player = "";
-                                                    Choosing_Player = true;
-                                                    change_information_label(Scene , &information , "Select Character",window_surface , light_eff , walk_able_eff , window);
                                                     two_rund = 0;
+                                                    Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                                 }
                                                 else{
                                                     two_rund++;
@@ -751,8 +725,8 @@ int main(int argc , char** argv){
                                         Set_all_cells_unwalkable(Scene);
                                         state = "";
                                         Chosen_Player = "";
-                                        Choosing_Player = true;
-                                        change_information_label(Scene , &information , "Select Character",window_surface , light_eff , walk_able_eff , window);
+                                        Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                     }
                                     else{
                                         change_information_label(Scene , &information , "Select Character again",window_surface , light_eff , walk_able_eff , window);
@@ -768,8 +742,9 @@ int main(int argc , char** argv){
                                                 Set_all_cells_unwalkable(Scene);
                                                 state = "";
                                                 Chosen_Player = "";
-                                                Choosing_Player = true;
-                                                change_information_label(Scene , &information , "Select Character",window_surface , light_eff , walk_able_eff , window);
+                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
+
                                             }
                                             else{
                                                 change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window);
@@ -794,9 +769,9 @@ int main(int argc , char** argv){
                                                 if(two_rund==1){
                                                     state = "";
                                                     Chosen_Player = "";
-                                                    Choosing_Player = true;
-                                                    change_information_label(Scene , &information , "Select Character",window_surface , light_eff , walk_able_eff , window);
                                                     two_rund = 0;
+                                                    Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                                 }
                                                 else{
                                                     two_rund++;
@@ -848,7 +823,6 @@ int main(int argc , char** argv){
                                                 Set_all_cells_unwalkable(Scene);
                                                 state = "";
                                                 Chosen_Player = "";
-                                                Choosing_Player = true;
                                                 if(Suspect_cards){
                                                     if(is_jack_turn){
                                                         if(Mr_jack_susCards==NULL){
@@ -870,7 +844,8 @@ int main(int argc , char** argv){
                                                         load_card(Scene,Suspect_cards->name);
                                                         remove_card(&Suspect_cards , Suspect_cards->name);
                                                     }
-                                                change_information_label(Scene , &information , "Select Character",window_surface , light_eff , walk_able_eff , window);
+                                                    Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                                 }
                                                 else{
                                                     change_information_label(Scene , &information , "No Cards left/Select Character",window_surface , light_eff , walk_able_eff , window);
@@ -901,8 +876,8 @@ int main(int argc , char** argv){
                                                 Set_all_cells_unwalkable(Scene);
                                                 state = "";
                                                 Chosen_Player = "";
-                                                Choosing_Player = true;
-                                                change_information_label(Scene , &information , "Select Character",window_surface , light_eff , walk_able_eff , window);
+                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                             }
                                             else{
                                                 change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window);
@@ -954,9 +929,9 @@ int main(int argc , char** argv){
                                                 if(two_rund==1){
                                                     state = "";
                                                     Chosen_Player = "";
-                                                    Choosing_Player = true;
-                                                    change_information_label(Scene , &information , "Select Character",window_surface , light_eff , walk_able_eff , window);
                                                     two_rund = 0;
+                                                    Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                                 }
                                                 else{
                                                     two_rund++;
@@ -1004,10 +979,10 @@ int main(int argc , char** argv){
                                             if(is_moved){
                                                 selected_lamp_cnt = 0;
                                                 Chosen_Player = "";
-                                                Choosing_Player = true;
                                                 state = "";
                                                 chosen_wall = "";
-                                                change_information_label(Scene , &information , "Select Character",window_surface , light_eff , walk_able_eff , window);
+                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                             }
                                             else{
                                                 chosen_wall = "";
@@ -1059,7 +1034,8 @@ int main(int argc , char** argv){
                                 printf("    ");
                                 SetConsoleTextAttribute(hConsole, 15);
                                 isGamePlaying = true;
-                                Choosing_Player = true;
+                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                 remove_card(&Suspect_cards , MrJacksName);
                                 //TODO:we need to initialize the suspect cards here
                                 change_scene(&head , Scene);
@@ -1085,7 +1061,8 @@ int main(int argc , char** argv){
                                 printf("    ");
                                 SetConsoleTextAttribute(hConsole, 15);
                                 isGamePlaying = true;
-                                Choosing_Player = true;
+                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
                                 burn_card(Scene , MrJacksName);
                                 remove_card(&Suspect_cards , MrJacksName);
                                 change_scene(&head , Scene);
