@@ -20,21 +20,27 @@ void walkable_character_MS(Drawable *Scene , char *name, int l);
 void get_shortest_path(Drawable *head , int first , int second , int gfirst , int gsecond , int l ,int ll , _pair path[13*9] , _pair visited_pits[9] , int visited_pits_cnt, int martabe);
 bool move_character_in_shortest_path(Drawable *head , char *name, int l,SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window);
 int main(int argc , char** argv){
-    srand(time(0));
     HANDLE  hConsole;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+
+    srand(time(0));
     char *MrJacksName = Choose_random_character();
     // --------- Hiding Console window from user
     HWND windowHandle = GetConsoleWindow();
-    //ShowWindow(windowHandle,SW_HIDE);
     // ---------------------------------------
+    SetConsoleTextAttribute(hConsole , 12);
+    printf("Please Enter your telegram username : ");
+    SetConsoleTextAttribute(hConsole , 15);
+    char username[100];
+    scanf("%s" , username);
     SDL_Event event;
     Init();
     font_segoeui = TTF_OpenFont("segoeui.ttf" , 20);
     font_segoeui_big = TTF_OpenFont("segoeui.ttf" , 30);
     font_consolas_big = TTF_OpenFont("ALGER.ttf" , 60);
     font_consolas = TTF_OpenFont("ALGER.TTF" , 18);
-    int Volume = 100;
+    int Volume = 50;
     Mix_Music *bgm = Mix_LoadMUS("Sounds\\bg1.mp3");
     Mix_PlayMusic(bgm,-1);
     Mix_VolumeMusic(Volume);
@@ -45,29 +51,31 @@ int main(int argc , char** argv){
     if(!window_surface)
         error_and_exit("Failed to get the surface from the window\n");
     // --------------Initialize Inocent Cards
-    int CX=1260 , CY=8;
+    int CX=1345 , CY=22;
     int ddx , ddy;
-    ddx = 12;
-    ddy = 10;
-
+    ddx = 4;
+    ddy = 0;
     _clickable Goodley={.tag= "Goodley",.click_able = false,.entered = false,.do_chick = false,.visible = true,.pos = { .x = CX , .y = CY},.image = load_image(unknown_card)};
-    _clickable Sherlock={.tag = "Sherlock" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX+98+ddx , .y = CY },.image = load_image(unknown_card)};
-    _clickable Lestrade={.tag= "Lestrade",.click_able = false,.entered = false,.do_chick = false,.visible = true,.pos = { .x = CX , .y = CY+156+ddy},.image = load_image(unknown_card)};
-    _clickable Jermy={.tag = "Jermy" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX+98+ddx , .y = CY+156+ddy },.image = load_image(unknown_card)};
-    _clickable Smith={.tag = "Smith" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX , .y = CY+(156+ddy)*2 },.image = load_image(unknown_card)};
-    _clickable Watson={.tag = "Watson" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX+98+ddx , .y = CY+(156+ddy)*2 },.image = load_image(unknown_card)};
-    _clickable Stealthy={.tag = "Stealthy" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX , .y = CY+(156+ddy)*3 },.image = load_image(unknown_card)};
-    _clickable Gull={.tag = "Gull" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX+98+ddx , .y = CY+(156+ddy)*3 },.image = load_image(unknown_card)};
+    _clickable Sherlock={.tag = "Sherlock" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX+72+ddx , .y = CY },.image = load_image(unknown_card)};
+    _clickable Lestrade={.tag= "Lestrade",.click_able = false,.entered = false,.do_chick = false,.visible = true,.pos = { .x = CX , .y = CY+(108+ddy)},.image = load_image(unknown_card)};
+    _clickable Jermy={.tag = "Jermy" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX+72+ddx , .y = CY+108+ddy },.image = load_image(unknown_card)};
+    _clickable Smith={.tag = "Smith" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX , .y = CY+(108+ddy)*2 },.image = load_image(unknown_card)};
+    _clickable Watson={.tag = "Watson" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX+72+ddx , .y = CY+(108+ddy)*2 },.image = load_image(unknown_card)};
+    _clickable Stealthy={.tag = "Stealthy" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX , .y = CY+(108+ddy)*3 },.image = load_image(unknown_card)};
+    _clickable Gull={.tag = "Gull" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = CX+72+ddx , .y = CY+(108+ddy)*3 },.image = load_image(unknown_card)};
     //----------InitializeMenu Items ------
     int __x = 585;
     int __y = 215;
     _clickable Border = {.tag = "Border" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = __x-35 , .y = __y-75},.image = load_image(border_pic)};
-    _clickable Play = {.tag = "Play" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = __x , .y = __y},.image = load_image(btn_play)};
-    _clickable Exit = {.tag = "exit" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = __x , .y = __y+270 },.image = load_image(btn_exit)};
-    _clickable Resume = {.tag = "Resume" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = __x , .y = __y+90 },.image = load_image(btn_resume)};
-    _clickable About_me = {.tag = "About Me" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = __x , .y = __y+180 },.image = load_image(btn_about)};
+    _clickable Play = {.tag = "Play" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = __x , .y = __y+45},.image = load_image(btn_play)};
+    _clickable Exit = {.tag = "exit" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = __x , .y = __y+225 },.image = load_image(btn_exit)};
+    _clickable About_me = {.tag = "About Me" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = __x , .y = __y+135 },.image = load_image(btn_about)};
     //-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=
-    _clickable mum_btn = {.tag = "mute" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 10 , .y = 10 },.image = load_image(unmute_btn)};
+    _clickable mum_btn = {.tag = "mute" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1450 , .y = 750 },.image = load_image(unmute_btn)};
+    _clickable cmd_btn = {.tag = "cmd" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1450 , .y = 700 },.image = load_image("Images\\cmd.png")};
+    _clickable tlgrm = {.tag = "telegram" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1400 , .y = 750 },.image = load_image("Images\\telegram.png")};
+    _clickable undo = {.tag = "undo" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1400 , .y = 800 },.image = load_image("Images\\undo.png")};
+
     _clickable background_picture = {.tag = "bground" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 0 , .y = 0 },.image = load_image(bg_pic)};
     _clickable background_picture2 = {.tag = "bground2" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 0 , .y = 0 },.image = load_image(bg_pic2)};
     //------------Aboutme Page Items-------
@@ -83,28 +91,47 @@ int main(int argc , char** argv){
     SDL_Surface *text_surface = TTF_RenderText_Solid(font_segoeui , "Type your save's Name : ",fg);
     TTF_SetFontStyle(font_segoeui ,TTF_STYLE_BOLD);
     SDL_Surface *text_box = TTF_RenderText_Solid(font_consolas , "_",fg);
-    SDL_Surface *enter_game = TTF_RenderText_Solid(font_consolas , "Save and Continue",fg2);
+    SDL_Surface *enter_game = TTF_RenderText_Solid(font_consolas , "Save and Continue",fg);
     SDL_Surface *information_label = TTF_RenderText_Solid(font_consolas , "Choose the Player",fg2);
-    SDL_Surface *before_label = TTF_RenderText_Solid(font_consolas , "Before",fg2);
-    SDL_Surface *after_label = TTF_RenderText_Solid(font_consolas , "After",fg2);
-    SDL_Surface *arrow_0 = TTF_RenderText_Solid(font_consolas , "Up",fg2);
-    SDL_Surface *arrow_1 = TTF_RenderText_Solid(font_consolas , "UR",fg2);
-    SDL_Surface *arrow_2 = TTF_RenderText_Solid(font_consolas , "DR",fg2);
-    SDL_Surface *arrow_3 = TTF_RenderText_Solid(font_consolas , "Down",fg2);
-    SDL_Surface *arrow_4 = TTF_RenderText_Solid(font_consolas , "DL",fg2);
-    SDL_Surface *arrow_5 = TTF_RenderText_Solid(font_consolas , "UL",fg2);
-    SDL_Surface *move = TTF_RenderText_Solid(font_consolas , "move",fg2);
-    SDL_Surface *action = TTF_RenderText_Solid(font_consolas , "action",fg2);
-    SDL_Surface *_one = TTF_RenderText_Solid(font_consolas , "one",fg2);
-    SDL_Surface *_two = TTF_RenderText_Solid(font_consolas , "two",fg2);
-    SDL_Surface *_three = TTF_RenderText_Solid(font_consolas , "three",fg2);
     SDL_Color fgg = { .r=0 , .g=100 , .b=255 };
     SDL_Surface *game_round_label = TTF_RenderText_Solid(font_consolas , "Round 1",fgg);
     SDL_Surface *turn_label = TTF_RenderText_Solid(font_consolas , "Turn1/Detective",fg2);
     SDL_Surface *Cards_in_this_round_label = TTF_RenderText_Solid(font_consolas , "This round : ",fg2);
+    SDL_Surface *before_label = TTF_RenderText_Solid(font_consolas , "Before",fgg);
+    SDL_Surface *after_label = TTF_RenderText_Solid(font_consolas , "After",fgg);
+    SDL_Surface *move = TTF_RenderText_Solid(font_consolas , "move",fgg);
+    SDL_Surface *action = TTF_RenderText_Solid(font_consolas , "action",fgg);
+    SDL_Surface *_one = TTF_RenderText_Solid(font_consolas , "one",fgg);
+    SDL_Surface *_two = TTF_RenderText_Solid(font_consolas , "two",fgg);
+    SDL_Surface *_three = TTF_RenderText_Solid(font_consolas , "three",fgg);
+
+    SDL_Surface *linfo_SG = TTF_RenderText_Blended_Wrapped(font_consolas , "                      **Sergent Goodley**\n\n-Can use it's action before or after movement\n\n-Moves one-three Cells\n-Action : move players near to him with maximum\n   movements of three." , fg , 1000);
+    _clickable info_SG = {.tag = "info_SG" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 1032 , .y = 500 },.image = linfo_SG};
+
+    SDL_Surface *linfo_JW = TTF_RenderText_Blended_Wrapped(font_consolas , "                               **John Watson**\n\n-Can use it's Action only after movement.\n\n-Moves one-three Cells\n-Action : Choose the Direction of the light\n   to light that direction." , fg , 1000);
+    _clickable info_JW = {.tag = "info_JW" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 1032 , .y = 500 },.image = linfo_JW};
+
+    SDL_Surface *linfo_JS = TTF_RenderText_Blended_Wrapped(font_consolas , "                               **John Smith**\n\n-Can use it's action before or after movement\n\n-Moves one-three Cells\n-Action : He Can move the lights." , fg , 1000);
+    _clickable info_JS = {.tag = "info_JS" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 1032 , .y = 500 },.image = linfo_JS};
+
+    SDL_Surface *linfo_JB = TTF_RenderText_Blended_Wrapped(font_consolas , "                               **Jermy Bert**\n\n-Can use it's action before or after movement\n\n-Moves one-three Cells\n-Action : He Can move pitholds." , fg , 1000);
+    _clickable info_JB = {.tag = "info_JB" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 1032 , .y = 500 },.image = linfo_JB};
+
+    SDL_Surface *linfo_MS = TTF_RenderText_Blended_Wrapped(font_consolas , "                             **Miss Stealthy**\n\n-Can use it's action during movement\n\n-Moves one-four Cells\n-Action : She Can move through houses." , fg , 1000);
+    _clickable info_MS = {.tag = "info_MS" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 1032 , .y = 500 },.image = linfo_MS};
+
+    SDL_Surface *linfo_IL = TTF_RenderText_Blended_Wrapped(font_consolas , "                        **Inspector Lestrade**\n\n-Can use it's action after movement\n\n-Moves one-three Cells\n-Action : He Can move walls of town." , fg , 1000);
+    _clickable info_IL = {.tag = "info_IL" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 1032 , .y = 500 },.image = linfo_IL};
+
+    SDL_Surface *linfo_SH = TTF_RenderText_Blended_Wrapped(font_consolas , "                           **Sherlock Holmes**\n\n-Can use it's action after movement\n\n-Moves one-three Cells\n-Action : you can pick a cart\n    from suspect cards." , fg , 1000);
+    _clickable info_SH = {.tag = "info_SH" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 1032 , .y = 500 },.image = linfo_SH};
+
+    SDL_Surface *linfo_WG = TTF_RenderText_Blended_Wrapped(font_consolas , "                             **William Gull**\n\n-Can use it's Action 'OR' Movemen.\n\n-Moves one-three Cells\n-Action : Can Switch his location with\n  another character." , fg , 1000);
+    _clickable info_WG = {.tag = "info_WG" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 1032 , .y = 500 },.image = linfo_WG};
 
 
     SDL_Surface *won_label = TTF_RenderText_Solid(font_consolas_big , "Detective Won",fg2);
+    _clickable info_border = {.tag = "info_br" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1028 , .y = 490 },.image = load_image("Images\\info_border.png")};
 
 
 
@@ -112,29 +139,30 @@ int main(int argc , char** argv){
     _clickable text_box_d = {.tag = "text_box" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos = { .x = __x , .y = __y+35 },.image = text_box};
     _clickable text_box_area = {.tag = "text_boxa" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = __x-5 , .y = __y+27 },.image = load_image("Images\\text_box.png")};
     _clickable Play2 = {.tag = "Play2" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = __x , .y = __y+250 },.image = enter_game};
-    _clickable information = {.tag = "information" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1100 , .y = 800 },.image = information_label};
-    _clickable before = {.tag = "before" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1100 , .y = 820 },.image = before_label};
-    _clickable after = {.tag = "after" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1170 , .y = 820 },.image = after_label};
-    _clickable _move = {.tag = "move" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1100 , .y = 820 },.image = move};
-    _clickable _action = {.tag = "action" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1170 , .y = 820 },.image = action};
-    _clickable one_ = {.tag = "one" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1100 , .y = 820 },.image = _one};
-    _clickable two_ = {.tag = "two" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1170 , .y = 820 },.image = _two};
-    _clickable three_ = {.tag = "three" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1240 , .y = 820 },.image = _three};
-    _clickable Won_Label = {.tag = "Won_Label" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 422 , .y = 350 },.image = won_label};
+    _clickable information = {.tag = "information" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1024 , .y = 795 },.image = information_label};
+    _clickable before = {.tag = "before" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1024 , .y = 820 },.image = before_label};
+    _clickable after = {.tag = "after" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1094 , .y = 820 },.image = after_label};
+    _clickable _move = {.tag = "move" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1024 , .y = 820 },.image = move};
+    _clickable _action = {.tag = "action" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1094 , .y = 820 },.image = action};
+    _clickable one_ = {.tag = "one" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1024 , .y = 820 },.image = _one};
+    _clickable two_ = {.tag = "two" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1094 , .y = 820 },.image = _two};
+    _clickable three_ = {.tag = "three" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = 1164 , .y = 820 },.image = _three};
+    _clickable Won_Label = {.tag = "Won_Label" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 380 , .y = 330 },.image = won_label};
     //422 , 358
-    _clickable round_bel = {.tag = "game_round" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 980 , .y = 20 },.image = game_round_label};
-    _clickable turn_bel = {.tag = "round_turn" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 980 , .y = 40 },.image = turn_label};
-    _clickable card_bel = {.tag = "round_cards" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 980 , .y = 60 },.image = Cards_in_this_round_label};
+    _clickable round_bel = {.tag = "game_round" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1030 , .y = 10 },.image = game_round_label};
+    _clickable turn_bel = {.tag = "round_turn" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1030 , .y = 30 },.image = turn_label};
+    _clickable card_bel = {.tag = "round_cards" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1030 , .y = 50 },.image = Cards_in_this_round_label};
 
     int xx , yy;
-    xx = 1350;
+    xx = 1260;
     yy = 760;
-    _clickable arrow0 = {.tag = "arrow_0" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = xx , .y = yy-60 },.image = arrow_0};
-    _clickable arrow1 = {.tag = "arrow_1" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = xx+50 , .y = yy-30},.image = arrow_1};
-    _clickable arrow2 = {.tag = "arrow_2" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = xx+50 , .y = yy+30 },.image = arrow_2};
-    _clickable arrow3 = {.tag = "arrow_3" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = xx-10 , .y = yy+60 },.image = arrow_3};
-    _clickable arrow4 = {.tag = "arrow_4" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = xx-50 , .y = yy+30 },.image = arrow_4};
-    _clickable arrow5 = {.tag = "arrow_5" ,.click_able = true, .entered = false,.do_chick = true,.visible = false,.pos = { .x = xx-50 , .y = yy-30 },.image = arrow_5};
+    bool arrow_vis = false;
+    _clickable arrow0 = {.tag = "arrow_0" ,.click_able = true, .entered = false,.do_chick = true,.visible = arrow_vis,.pos = { .x = xx , .y = yy-30 },.image = load_image("Images\\up.png")};
+    _clickable arrow1 = {.tag = "arrow_1" ,.click_able = true, .entered = false,.do_chick = true,.visible = arrow_vis,.pos = { .x = xx+40 , .y = yy-30},.image = load_image("Images\\ur.png")};
+    _clickable arrow2 = {.tag = "arrow_2" ,.click_able = true, .entered = false,.do_chick = true,.visible = arrow_vis,.pos = { .x = xx+40 , .y = yy+30 },.image = load_image("Images\\dr.png")};
+    _clickable arrow3 = {.tag = "arrow_3" ,.click_able = true, .entered = false,.do_chick = true,.visible = arrow_vis,.pos = { .x = xx , .y = yy+30 },.image = load_image("Images\\down.png")};
+    _clickable arrow4 = {.tag = "arrow_4" ,.click_able = true, .entered = false,.do_chick = true,.visible = arrow_vis,.pos = { .x = xx-40 , .y = yy+30 },.image = load_image("Images\\dl.png")};
+    _clickable arrow5 = {.tag = "arrow_5" ,.click_able = true, .entered = false,.do_chick = true,.visible = arrow_vis,.pos = { .x = xx-40 , .y = yy-30 },.image = load_image("Images\\ul.png")};
 
     //-------------------------------------------------------
 
@@ -145,9 +173,7 @@ int main(int argc , char** argv){
     Add_obj(Menu , Create_node(&Border));
     Add_obj(Menu , Create_node(&Play));
     Add_obj(Menu , Create_node(&Exit));
-    Add_obj(Menu , Create_node(&Resume));
     Add_obj(Menu , Create_node(&About_me));
-    Add_obj(Menu , Create_node(&mum_btn));
     //----------------------------------------------------
     Drawable *About = Create_node(&background_picture);
     Add_obj(About , Create_node(&Border));
@@ -155,10 +181,48 @@ int main(int argc , char** argv){
     Add_obj(About , Create_node(&mum_btn));
     Add_obj(About , Create_node(&About_Label));
     //---------------------------------------------------
+    _clickable card_1 = {.tag = "card_1" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1027 , .y = 78 },.image = load_image("Images\\disabled_card.png")};
+    _clickable card_2 = {.tag = "card_2" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1182 , .y = 78 },.image = load_image("Images\\disabled_card.png")};
+    _clickable card_3 = {.tag = "card_3" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1027 , .y = 273 },.image = load_image("Images\\disabled_card.png")};
+    _clickable card_4 = {.tag = "card_4" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1182 , .y = 273 },.image = load_image("Images\\disabled_card.png")};
+
+    _clickable _card_1 = {.tag = "1card_1" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1027 , .y = 78 },.image = load_image("Images\\disabled_card.png")};
+    _clickable _card_2 = {.tag = "1card_2" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1182 , .y = 78 },.image = load_image("Images\\disabled_card.png")};
+    _clickable _card_3 = {.tag = "1card_3" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1027 , .y = 273 },.image = load_image("Images\\disabled_card.png")};
+    _clickable _card_4 = {.tag = "1card_4" ,.click_able = false, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1182 , .y = 273 },.image = load_image("Images\\disabled_card.png")};
+
+
+    _clickable Map_Border = {.tag = "Map_Border" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 6 , .y = 3 },.image = load_image("Images\\map_border.png")};
     Drawable *Scene=Create_node(&background_picture2);
-    Draw_map(Scene,50,10);
+    //Drawable *Scene=Create_node(&Map_Border);
+    Add_obj(Scene , Create_node(&Map_Border));
+    Draw_map(Scene,10,10);
+
+    Add_obj(Scene , Create_node(&_card_1));
+    Add_obj(Scene , Create_node(&_card_2));
+    Add_obj(Scene , Create_node(&_card_3));
+    Add_obj(Scene , Create_node(&_card_4));
+
+    Add_obj(Scene , Create_node(&card_1));
+    Add_obj(Scene , Create_node(&card_2));
+    Add_obj(Scene , Create_node(&card_3));
+    Add_obj(Scene , Create_node(&card_4));
+
     Add_obj(Scene , Create_node(&Home));
     Add_obj(Scene , Create_node(&mum_btn));
+    Add_obj(Scene , Create_node(&info_border));
+    Add_obj(Scene , Create_node(&info_SG));
+    Add_obj(Scene , Create_node(&info_JW));
+    Add_obj(Scene , Create_node(&info_JS));
+    Add_obj(Scene , Create_node(&info_JB));
+    Add_obj(Scene , Create_node(&info_MS));
+    Add_obj(Scene , Create_node(&info_IL));
+    Add_obj(Scene , Create_node(&info_SH));
+    Add_obj(Scene , Create_node(&info_WG));
+
+    Add_obj(Scene , Create_node(&undo));
+
+
     _clickable light1 = {.tag = "LI1" ,.click_able = true, .entered = false,.do_chick = true,.visible = true,.pos = { .x = 1450 , .y = 750 },.image = load_image("Images\\Blocks\\light.png")};
     Drawable *cell = Find_Cell(Scene , 1,13);
     light1.pos.x = cell->obj->pos.x;
@@ -221,6 +285,23 @@ int main(int argc , char** argv){
     pit_hold2.cell_info = cell->obj->cell_info;
     Add_obj(Scene , Create_node(&pit_hold2));
 
+    _clickable wall1 = {.tag = "wall1" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1450 , .y = 750 },.image = load_image("Images\\Blocks\\exit_closed.png")};
+    cell = Find_Cell(Scene ,1,17);
+    wall1.pos.x = cell->obj->pos.x;
+    wall1.pos.y = cell->obj->pos.y;
+    wall1.cell_info = cell->obj->cell_info;
+    cell->obj->do_chick = false;
+    cell->obj->click_able = true;
+    Add_obj(Scene , Create_node(&wall1));
+
+    _clickable wall2 = {.tag = "wall2" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1450 , .y = 750 },.image = load_image("Images\\Blocks\\exit_closed.png")};
+    cell = Find_Cell(Scene ,11,1);
+    wall2.pos.x = cell->obj->pos.x;
+    wall2.pos.y = cell->obj->pos.y;
+    wall2.cell_info = cell->obj->cell_info;
+    cell->obj->do_chick = false;
+    cell->obj->click_able = true;
+    Add_obj(Scene , Create_node(&wall2));
 
     cell = Find_Cell(Scene ,8,16);
     _clickable JW = {.tag = "JW" ,.click_able = true, .entered = false,.do_chick = false,.visible = true, .direction = 1,.pos = {.x = cell->obj->pos.x+18 , .y = cell->obj->pos.y+13},.image = load_image("Images\\Characters\\watson_1.png")};
@@ -274,24 +355,10 @@ int main(int argc , char** argv){
     SH.cell_info = cell->obj->cell_info;
     Add_obj(Scene , Create_node(&SH));
 
+    _clickable Suspects_border = {.tag = "susborder" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1337 , .y = 4 },.image = load_image("Images\\suspects.png")};
 
-    _clickable wall1 = {.tag = "wall1" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1450 , .y = 750 },.image = load_image("Images\\Blocks\\exit_closed.png")};
-    cell = Find_Cell(Scene ,1,17);
-    wall1.pos.x = cell->obj->pos.x;
-    wall1.pos.y = cell->obj->pos.y;
-    wall1.cell_info = cell->obj->cell_info;
-    cell->obj->do_chick = false;
-    cell->obj->click_able = true;
-    Add_obj(Scene , Create_node(&wall1));
 
-    _clickable wall2 = {.tag = "wall2" ,.click_able = true, .entered = false,.do_chick = false,.visible = true,.pos = { .x = 1450 , .y = 750 },.image = load_image("Images\\Blocks\\exit_closed.png")};
-    cell = Find_Cell(Scene ,11,1);
-    wall2.pos.x = cell->obj->pos.x;
-    wall2.pos.y = cell->obj->pos.y;
-    wall2.cell_info = cell->obj->cell_info;
-    cell->obj->do_chick = false;
-    cell->obj->click_able = true;
-    Add_obj(Scene , Create_node(&wall2));
+
     Add_obj(Scene , Create_node(&information));
     Add_obj(Scene , Create_node(&before));
     Add_obj(Scene , Create_node(&after));
@@ -317,7 +384,15 @@ int main(int argc , char** argv){
     Add_obj(Scene , Create_node(&round_bel));
     Add_obj(Scene , Create_node(&turn_bel));
     Add_obj(Scene , Create_node(&card_bel));
+    Add_obj(Scene , Create_node(&Suspects_border));
+    Add_obj(Scene , Create_node(&cmd_btn));
+    Add_obj(Scene , Create_node(&tlgrm));
+    _clickable black_effect = {.tag = "blackeff" ,.click_able = false, .entered = false,.do_chick = false,.visible = false,.pos = { .x = 0 , .y = 0 },.image = load_image("Images\\black_effect.png")};
+    Add_obj(Scene , Create_node(&black_effect));
     Add_obj(Scene , Create_node(&Won_Label));
+
+    bool shown = true;
+
     Map_Lights(Scene);
     Drawable *seek = Scene;
     while(seek){
@@ -326,7 +401,6 @@ int main(int argc , char** argv){
     Drawable *new_game_name = Create_node(&background_picture);
     Add_obj(new_game_name , Create_node(&Border));
     Add_obj(new_game_name , Create_node(&Back_btn));
-    Add_obj(new_game_name , Create_node(&mum_btn));
     Add_obj(new_game_name , Create_node(&labeld));
     Add_obj(new_game_name , Create_node(&text_box_area));
     Add_obj(new_game_name , Create_node(&text_box_d));
@@ -343,12 +417,11 @@ int main(int argc , char** argv){
     char *Chosen_Player = "";
     char *state = "";
     int two_rund = 0;
+    bool undod = false;
     //----------------------------------
     Card *Suspect_cards;
     add_all_characters(&Suspect_cards);
     shuffle_cards(Suspect_cards);
-    printf("Suspect Cards : \n");
-    print_cards(Suspect_cards);
     //---------------------------------
     Card *Mr_jack_susCards = NULL;
     Card *Detective_susCards = NULL;
@@ -366,16 +439,8 @@ int main(int argc , char** argv){
     Card *First_half;
     Card *Second_half;
     Create_Cards(&First_half , &Second_half);
-    printf("First half : \n");
-    print_cards(First_half);
-    printf("Second Half : \n");
-    print_cards(Second_half);
-    //for(int i = 0; i<32;i++){
-        //char *next_chosen = get_next_turn(&First_half , &Second_half , &game_round , &round_turn , &is_jack_turn);
-        //if(next_chosen)
-           // printf("Chosen : %s and it is %s's turn\n" , next_chosen , is_jack_turn?"Jack":"Detective");
-    //}
-    Detective_Wins(Scene , &Won_Label , window_surface , light_effect , walk_able_eff , window);
+
+    int save_no = 1;
     while(keep_window_open)
     {
         Map_Lights(Scene);
@@ -416,10 +481,13 @@ int main(int argc , char** argv){
                 case SDL_MOUSEBUTTONDOWN:
                     break;
                 case SDL_MOUSEBUTTONUP:
-                    printf("Pos : (%d , %d) \n" , mouse_pos.x , mouse_pos.y);
+                    //printf("Pos : (%d , %d) \n" , mouse_pos.x , mouse_pos.y);
                     seek = head;
                     while(seek){
                         if((event.button.state != SDL_PRESSED)&&seek->obj->visible&&seek->obj->click_able&&(strcmp(convert_button_number_to_string(event.button.button) , "left")==0)&&is_mouse_inside_Surface(mouse_pos, seek->obj->pos)){
+                            if(Search_by_tag(Scene , "blackeff")->obj->visible){
+                                break;
+                            }
                             Play_voice_Thread(sounds_button2);
                             if(strcmp(seek->obj->tag, "action")==0){
                                 if(strcmp(Chosen_Player , "WG")==0){
@@ -450,7 +518,7 @@ int main(int argc , char** argv){
                                                 Chosen_Player = "";
                                                 state = "";
                                                 two_rund = 0;
-                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
                                                 //change_information_label(Scene , &information , "Select Character" , window_surface , light_eff , walk_able_eff , window);
                                             }
                                             else{
@@ -485,8 +553,9 @@ int main(int argc , char** argv){
                                                 Chosen_Player = "";
                                                 state = "";
                                                 two_rund = 0;
-                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
-                                            }
+                                                Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+
+                                                }
                                             else{
                                                 two_rund++;
                                                 walkable_character(Scene , "SG" , 3);
@@ -521,7 +590,7 @@ int main(int argc , char** argv){
                                                 Chosen_Player = "";
                                                 state = "";
                                                 two_rund = 0;
-                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
                                             }
                                             else{
@@ -590,12 +659,12 @@ int main(int argc , char** argv){
                                 arrow5.visible = false;
                                 Chosen_Player = "";
                                 state = "";
-                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
                             }
                             if(strcmp(seek->obj->tag , "MapCell")==0){
                                 if(is_mouse_inside_cell(mouse_pos , seek->obj->pos)){
-                                printf("Clicked on : %d, %d\n" , seek->obj->cell_info->cell_pos.first,seek->obj->cell_info->cell_pos.second);
+                                //printf("Clicked on : %d, %d\n" , seek->obj->cell_info->cell_pos.first,seek->obj->cell_info->cell_pos.second);
                                 int first = seek->obj->cell_info->cell_pos.first;
                                 int seco = seek->obj->cell_info->cell_pos.second;
 
@@ -616,7 +685,7 @@ int main(int argc , char** argv){
                                                 Chosen_Player = "";
                                                 state = "";
                                                 two_rund = 0;
-                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
                                             }
                                             else{
@@ -673,7 +742,7 @@ int main(int argc , char** argv){
                                                 Chosen_Player = "";
                                                 state = "";
                                                 two_rund = 0;
-                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
                                             }
                                             else{
@@ -693,14 +762,27 @@ int main(int argc , char** argv){
                                     if(!is_cell_full(Scene,seek->obj->pos.x+18 , seek->obj->pos.x+13)){
                                         _pair dest = {first , seco};
                                         if(Find_Cell(Scene , first , seco)->obj->cell_info->walk_able){
+                                            if(is_cell_empty_wall(Scene , dest.first , dest.second)&&is_jack_turn){
+                                                    if((strcmp("JB" , MrJacksName)==0))
+                                                        Jack_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                    else
+                                                        break;
+                                            }
+                                             if(is_cell_wall(dest.first , dest.second)){
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
+                                                break;
+                                            }
+
                                             bool moved = change_character_place(Scene , "JB" , dest , window_surface , light_eff , walk_able_eff , window);
                                             if(moved){
+
+
                                                 Set_all_cells_unwalkable(Scene);
                                                 if(two_rund==1){
                                                     state = "";
                                                     Chosen_Player = "";
                                                     two_rund = 0;
-                                                    Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                    Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
                                                 }
                                                 else{
@@ -717,9 +799,8 @@ int main(int argc , char** argv){
                                                 else if((!is_jack_turn) && strcmp(tmpname , MrJacksName)!=0){
                                                     Jack_Wins(Scene ,&Won_Label , window_surface , light_eff , walk_able_eff , window);
                                                 }
-                                                else{
-                                                    change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
-                                                }
+                                                else
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
                                         else{
@@ -736,7 +817,7 @@ int main(int argc , char** argv){
                                         Set_all_cells_unwalkable(Scene);
                                         state = "";
                                         Chosen_Player = "";
-                                        Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                        Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
                                     }
                                     else{
@@ -748,16 +829,35 @@ int main(int argc , char** argv){
                                     if(!is_cell_full(Scene,seek->obj->pos.x+18 , seek->obj->pos.x+13)){
                                         _pair dest = {first , seco};
                                         if(Find_Cell(Scene , first , seco)->obj->cell_info->walk_able){
+                                            if(is_cell_empty_wall(Scene , dest.first , dest.second)&&is_jack_turn){
+                                                    if((strcmp("WG" , MrJacksName)==0))
+                                                        Jack_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                    else
+                                                        break;
+                                            }
+                                             if(is_cell_wall(dest.first , dest.second)){
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
+                                                break;
+                                            }
+
                                             bool moved = change_character_place(Scene , "WG" , dest , window_surface , light_eff , walk_able_eff , window);
                                             if(moved){
                                                 Set_all_cells_unwalkable(Scene);
                                                 state = "";
                                                 Chosen_Player = "";
-                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
 
                                             }
-                                            else{
+                                           else{
+                                                char *tmpname = dest_char_name(Scene , dest.first , dest.second);
+                                                if(strcmp(tmpname , MrJacksName)==0&&(!is_jack_turn)){
+                                                    Detective_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff, window);
+                                                }
+                                                else if((!is_jack_turn) && strcmp(tmpname , MrJacksName)!=0){
+                                                    Jack_Wins(Scene ,&Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                }
+                                                else
                                                 change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
 
@@ -774,6 +874,17 @@ int main(int argc , char** argv){
                                     if(!is_cell_full(Scene,seek->obj->pos.x+18 , seek->obj->pos.x+13)){
                                         _pair dest = {first , seco};
                                         if(Find_Cell(Scene , first , seco)->obj->cell_info->walk_able){
+                                            if(is_cell_empty_wall(Scene , dest.first , dest.second)&&is_jack_turn){
+                                                    if((strcmp("JS" , MrJacksName)==0))
+                                                        Jack_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                    else
+                                                        break;
+                                            }
+                                             if(is_cell_wall(dest.first , dest.second)){
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
+                                                break;
+                                            }
+
                                             bool moved = change_character_place(Scene , "JS" , dest , window_surface , light_eff , walk_able_eff , window);
                                             if(moved){
                                                 Set_all_cells_unwalkable(Scene);
@@ -781,7 +892,7 @@ int main(int argc , char** argv){
                                                     state = "";
                                                     Chosen_Player = "";
                                                     two_rund = 0;
-                                                    Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                    Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
                                                 }
                                                 else{
@@ -791,6 +902,14 @@ int main(int argc , char** argv){
                                                 }
                                             }
                                             else{
+                                                char *tmpname = dest_char_name(Scene , dest.first , dest.second);
+                                                if(strcmp(tmpname , MrJacksName)==0&&(!is_jack_turn)){
+                                                    Detective_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff, window);
+                                                }
+                                                else if((!is_jack_turn) && strcmp(tmpname , MrJacksName)!=0){
+                                                    Jack_Wins(Scene ,&Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                }
+                                                else
                                                 change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
@@ -807,6 +926,17 @@ int main(int argc , char** argv){
                                         if(!is_cell_full(Scene,seek->obj->pos.x+18 , seek->obj->pos.x+13)){
                                         _pair dest = {first , seco};
                                         if(Find_Cell(Scene , first , seco)->obj->cell_info->walk_able){
+                                            if(is_cell_empty_wall(Scene , dest.first , dest.second)&&is_jack_turn){
+                                                    if((strcmp("IL" , MrJacksName)==0))
+                                                        Jack_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                    else
+                                                        break;
+                                            }
+                                             if(is_cell_wall(dest.first , dest.second)){
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
+                                                break;
+                                            }
+
                                             bool moved = change_character_place(Scene , "IL" , dest , window_surface , light_eff , walk_able_eff , window);
                                             if(moved){
                                                 Set_all_cells_unwalkable(Scene);
@@ -814,6 +944,14 @@ int main(int argc , char** argv){
                                                 change_information_label(Scene , &information , "Select Wall",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                             else{
+                                                char *tmpname = dest_char_name(Scene , dest.first , dest.second);
+                                                if(strcmp(tmpname , MrJacksName)==0&&(!is_jack_turn)){
+                                                    Detective_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff, window);
+                                                }
+                                                else if((!is_jack_turn) && strcmp(tmpname , MrJacksName)!=0){
+                                                    Jack_Wins(Scene ,&Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                }
+                                                else
                                                 change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
@@ -829,6 +967,17 @@ int main(int argc , char** argv){
                                         if(!is_cell_full(Scene,seek->obj->pos.x+18 , seek->obj->pos.x+13)){
                                         _pair dest = {first , seco};
                                         if(Find_Cell(Scene , first , seco)->obj->cell_info->walk_able){
+                                            if(is_cell_empty_wall(Scene , dest.first , dest.second)&&is_jack_turn){
+                                                    if((strcmp("SH" , MrJacksName)==0))
+                                                        Jack_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                    else
+                                                        break;
+                                            }
+                                            if(is_cell_wall(dest.first , dest.second)){
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
+                                                break;
+                                            }
+
                                             bool moved = change_character_place(Scene , "SH" , dest , window_surface , light_eff , walk_able_eff , window);
                                             if(moved){
                                                 Set_all_cells_unwalkable(Scene);
@@ -855,18 +1004,22 @@ int main(int argc , char** argv){
                                                         load_card(Scene,Suspect_cards->name);
                                                         remove_card(&Suspect_cards , Suspect_cards->name);
                                                     }
-                                                    Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                    Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
                                                 }
                                                 else{
                                                     change_information_label(Scene , &information , "No Cards left/Select Character",window_surface , light_eff , walk_able_eff , window,fg2);
                                                 }
-                                                printf("Cards Jack picked : \n");
-                                                print_cards(Mr_jack_susCards);
-                                                printf("\nCards Detective picked : \n");
-                                                print_cards(Detective_susCards);
                                             }
                                             else{
+                                                char *tmpname = dest_char_name(Scene , dest.first , dest.second);
+                                                if(strcmp(tmpname , MrJacksName)==0&&(!is_jack_turn)){
+                                                    Detective_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff, window);
+                                                }
+                                                else if((!is_jack_turn) && strcmp(tmpname , MrJacksName)!=0){
+                                                    Jack_Wins(Scene ,&Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                }
+                                                else
                                                 change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
@@ -882,15 +1035,34 @@ int main(int argc , char** argv){
                                         if(!is_cell_full(Scene,seek->obj->pos.x+18 , seek->obj->pos.x+13)){
                                         _pair dest = {first , seco};
                                         if(Find_Cell(Scene , first , seco)->obj->cell_info->walk_able){
+                                            if(is_cell_empty_wall(Scene , dest.first , dest.second)&&is_jack_turn){
+                                                    if((strcmp("MS" , MrJacksName)==0))
+                                                        Jack_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                    else
+                                                        break;
+                                            }
+                                            if(is_cell_wall(dest.first , dest.second)){
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
+                                                break;
+                                            }
+
                                             bool moved = change_character_place(Scene , "MS" , dest , window_surface , light_eff , walk_able_eff , window);
                                             if(moved){
                                                 Set_all_cells_unwalkable(Scene);
                                                 state = "";
                                                 Chosen_Player = "";
-                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
                                             }
                                             else{
+                                                char *tmpname = dest_char_name(Scene , dest.first , dest.second);
+                                                if(strcmp(tmpname , MrJacksName)==0&&(!is_jack_turn)){
+                                                    Detective_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff, window);
+                                                }
+                                                else if((!is_jack_turn) && strcmp(tmpname , MrJacksName)!=0){
+                                                    Jack_Wins(Scene ,&Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                }
+                                                else
                                                 change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
@@ -906,6 +1078,16 @@ int main(int argc , char** argv){
                                         if(!is_cell_full(Scene,seek->obj->pos.x+18 , seek->obj->pos.x+13)){
                                         _pair dest = {first , seco};
                                         if(Find_Cell(Scene , first , seco)->obj->cell_info->walk_able){
+                                            if(is_cell_empty_wall(Scene , dest.first , dest.second)&&is_jack_turn){
+                                                    if((strcmp("JW" , MrJacksName)==0))
+                                                        Jack_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                    else
+                                                        break;
+                                            }
+                                             if(is_cell_wall(dest.first , dest.second)){
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
+                                                break;
+                                            }
                                             bool moved = change_character_place(Scene , "JW" , dest , window_surface , light_eff , walk_able_eff , window);
                                             if(moved){
                                                 Set_all_cells_unwalkable(Scene);
@@ -919,6 +1101,14 @@ int main(int argc , char** argv){
                                                 change_information_label(Scene , &information , "Select Direction : ",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                             else{
+                                                char *tmpname = dest_char_name(Scene , dest.first , dest.second);
+                                                if(strcmp(tmpname , MrJacksName)==0&&(!is_jack_turn)){
+                                                    Detective_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff, window);
+                                                }
+                                                else if((!is_jack_turn) && strcmp(tmpname , MrJacksName)!=0){
+                                                    Jack_Wins(Scene ,&Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                }
+                                                else
                                                 change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
@@ -934,6 +1124,16 @@ int main(int argc , char** argv){
                                         if(!is_cell_full(Scene,seek->obj->pos.x+18 , seek->obj->pos.x+13)){
                                         _pair dest = {first , seco};
                                         if(Find_Cell(Scene , first , seco)->obj->cell_info->walk_able){
+                                            if(is_cell_empty_wall(Scene , dest.first , dest.second)&&is_jack_turn){
+                                                    if((strcmp("SG" , MrJacksName)==0))
+                                                        Jack_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                    else
+                                                        break;
+                                            }
+                                             if(is_cell_wall(dest.first , dest.second)){
+                                                change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
+                                                break;
+                                            }
                                             bool moved = change_character_place(Scene , "SG" , dest , window_surface , light_eff , walk_able_eff , window);
                                             if(moved){
                                                 Set_all_cells_unwalkable(Scene);
@@ -941,7 +1141,7 @@ int main(int argc , char** argv){
                                                     state = "";
                                                     Chosen_Player = "";
                                                     two_rund = 0;
-                                                    Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                    Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
                                                 }
                                                 else{
@@ -951,6 +1151,14 @@ int main(int argc , char** argv){
                                                 }
                                             }
                                             else{
+                                                char *tmpname = dest_char_name(Scene , dest.first , dest.second);
+                                                if(strcmp(tmpname , MrJacksName)==0&&(!is_jack_turn)){
+                                                    Detective_Wins(Scene , &Won_Label , window_surface , light_eff , walk_able_eff, window);
+                                                }
+                                                else if((!is_jack_turn) && strcmp(tmpname , MrJacksName)!=0){
+                                                    Jack_Wins(Scene ,&Won_Label , window_surface , light_eff , walk_able_eff , window);
+                                                }
+                                                else
                                                 change_information_label(Scene , &information , "Full/Select again",window_surface , light_eff , walk_able_eff , window,fg2);
                                             }
                                         }
@@ -980,7 +1188,6 @@ int main(int argc , char** argv){
                                                 change_information_label(Scene , &information , "Select Wall again",window_surface , light_eff , walk_able_eff , window,fg2);
                                                 continue;
                                             }
-                                            printf("selected wall : %s\n" , chosen_wall);
                                             change_information_label(Scene , &information , "Select Place to move wall to",window_surface , light_eff , walk_able_eff , window,fg2);
                                         }
 
@@ -993,7 +1200,7 @@ int main(int argc , char** argv){
                                                 Chosen_Player = "";
                                                 state = "";
                                                 chosen_wall = "";
-                                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                                Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
 
                                             }
                                             else{
@@ -1003,7 +1210,6 @@ int main(int argc , char** argv){
                                             }
                                         }
                                 }
-                                printf("%d,%d\n" , first , seco);
                                 }
                             }
                             if(strcmp(seek->obj->tag , "exit")==0)
@@ -1022,6 +1228,50 @@ int main(int argc , char** argv){
                                     Playing = true;
                                 }
                             }
+                            else if(strcmp(seek->obj->tag , "telegram")==0){
+                                send_jack_name(username, MrJacksName,typed_txt);
+                            }
+                            else if(strcmp(seek->obj->tag , "undo")==0){
+                                if(true){
+                                    save_no-=2;
+                                    undod = true;
+                                }
+                                else{
+                                    save_no-=1;
+                                }
+                                for(int i = 0; i<strlen(typed_txt);i++){
+                                    if(typed_txt[i]==' ')
+                                        typed_txt[i]='_';
+                                }
+                                if(typed_txt[strlen(typed_txt)-1]==' '||typed_txt[strlen(typed_txt)-1]=='_')
+                                    typed_txt[strlen(typed_txt)-1]='\0';
+                                char save_name[100];
+                                char file_name[200];
+                                char file_name2[200];
+                                strcpy(save_name , typed_txt);
+                                sprintf(file_name , "Saves\\%s_%d.save" , save_name , save_no);
+                                sprintf(file_name2 , "del Saves\\%s_%d.save" , save_name , save_no+1);
+                                system(file_name2);
+                                set_new_move(false);
+                                printf("loding : %s\n" , file_name);
+                                load_game(file_name , &game_round , &round_turn , Scene , First_half , Second_half , &Detective_susCards, &Mr_jack_susCards , &Suspect_cards , &MrJacksName);
+                                save_no++;
+                                change_scene(&head , Scene);
+                                sprintf(save_name , "%s_" , save_name);
+                                strcpy(typed_txt , save_name);
+                                cursor_pos = strlen(save_name)+1;
+                                Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                            }
+                            else if(strcmp(seek->obj->tag , "cmd")==0){
+                                if(shown){
+                                    ShowWindow(windowHandle,SW_HIDE);
+                                    shown = false;
+                                }
+                                else if(!shown){
+                                    ShowWindow(windowHandle,SW_SHOW);
+                                    shown = true;
+                                }
+                            }
                             else if(strcmp(seek->obj->tag , "About Me")==0)
                                 change_scene(&head , About);
                             else if(strcmp(seek->obj->tag , "Back")==0 || strcmp(seek->obj->tag , "Home")==0)
@@ -1034,23 +1284,41 @@ int main(int argc , char** argv){
                             }
                             else if(strcmp(seek->obj->tag , "Play2") == 0){
                                 is_typing = false;
-                                MrJacksName = Choose_random_character();
-                                SetConsoleTextAttribute(hConsole, 207);
-                                printf("    ");
-                                SetConsoleTextAttribute(hConsole, 12);
-                                printf(" Mr.Jack in this round is : " );
-                                SetConsoleTextAttribute(hConsole, 10);
-                                printf("%s " , MrJacksName);
-                                burn_card(Scene , MrJacksName);
-                                SetConsoleTextAttribute(hConsole, 207);
-                                printf("    ");
-                                SetConsoleTextAttribute(hConsole, 15);
-                                isGamePlaying = true;
-                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                for(int i = 0; i<strlen(typed_txt);i++){
+                                    if(typed_txt[i]==' ')
+                                        typed_txt[i]='_';
+                                }
+                                if(typed_txt[strlen(typed_txt)-1]==' '||typed_txt[strlen(typed_txt)-1]=='_')
+                                    typed_txt[strlen(typed_txt)-1]='\0';
+                                char save_name[100];
+                                strcpy(save_name , typed_txt);
+                                int last = get_last_save(save_name);
+                                if(last == 0){
+                                    MrJacksName = Choose_random_character();
+                                    printf("Sending Jack's name ...");
+                                    send_jack_name(username, MrJacksName,typed_txt);
+                                    isGamePlaying = true;
+                                    remove_card(&Suspect_cards , MrJacksName);
+                                    change_scene(&head , Scene);
+                                    burn_card(Scene , MrJacksName);
+                                    save_no = 1;
+                                    undod = false;
+                                    Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                }
+                                else{
+                                    char file_name[200];
+                                    sprintf(file_name , "Saves\\%s_%d.save" , save_name , last);
+                                    set_new_move(false);
+                                    load_game(file_name , &game_round , &round_turn , Scene , First_half , Second_half , &Detective_susCards, &Mr_jack_susCards , &Suspect_cards , &MrJacksName);
+                                    save_no = last+1;
+                                    change_scene(&head , Scene);
+                                    sprintf(save_name , "%s_" , save_name);
+                                    strcpy(typed_txt , save_name);
+                                    cursor_pos = strlen(save_name)+1;
+                                    Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                }
 
-                                remove_card(&Suspect_cards , MrJacksName);
-                                //TODO:we need to initialize the suspect cards here
-                                change_scene(&head , Scene);
+
                             }
                         }
                         seek = seek->next;
@@ -1062,22 +1330,40 @@ int main(int argc , char** argv){
                                 if(cursor_pos==0)
                                     break;
                                 is_typing = false;
-                                MrJacksName = Choose_random_character();
-                                SetConsoleTextAttribute(hConsole, 207);
-                                printf("    ");
-                                SetConsoleTextAttribute(hConsole, 12);
-                                printf(" Mr.Jack in this round is : " );
-                                SetConsoleTextAttribute(hConsole, 10);
-                                printf("%s " , MrJacksName);
-                                SetConsoleTextAttribute(hConsole, 207);
-                                printf("    ");
-                                SetConsoleTextAttribute(hConsole, 15);
-                                isGamePlaying = true;
-                                Choose_Next(Scene , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                for(int i = 0; i<strlen(typed_txt);i++){
+                                    if(typed_txt[i]==' ')
+                                        typed_txt[i]='_';
+                                }
+                                if(typed_txt[strlen(typed_txt)-1]==' '||typed_txt[strlen(typed_txt)-1]=='_')
+                                    typed_txt[strlen(typed_txt)-1]='\0';
+                                char save_name[100];
+                                strcpy(save_name , typed_txt);
+                                int last = get_last_save(save_name);
+                                if(last == 0){
+                                    MrJacksName = Choose_random_character();
+                                    printf("Sending Jack's name ...");
+                                    send_jack_name(username, MrJacksName,typed_txt);
+                                    isGamePlaying = true;
+                                    burn_card(Scene , MrJacksName);
+                                    remove_card(&Suspect_cards , MrJacksName);
+                                    save_no = 1;
+                                    Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                    undod = false;
+                                    change_scene(&head , Scene);
+                                }
+                                else{
+                                    char file_name[200];
+                                    sprintf(file_name , "Saves\\%s_%d.save" , save_name , last);
+                                    set_new_move(false);
+                                    load_game(file_name , &game_round , &round_turn , Scene , First_half , Second_half , &Detective_susCards, &Mr_jack_susCards , &Suspect_cards , &MrJacksName);
+                                    save_no = last+1;
+                                    change_scene(&head , Scene);
+                                    sprintf(save_name , "%s_" , save_name);
+                                    strcpy(typed_txt , save_name);
+                                    cursor_pos = strlen(save_name)+1;
+                                    Choose_Next(Scene,Detective_susCards , Mr_jack_susCards,Suspect_cards , typed_txt , &save_no , MrJacksName , &state , &Chosen_Player , &information , &before , &after , &_move , &_action , &First_half , &Second_half , &game_round , &round_turn,&is_jack_turn , window_surface , light_eff , walk_able_eff , window,&round_bel , &turn_bel , &card_bel);
+                                }
 
-                                burn_card(Scene , MrJacksName);
-                                remove_card(&Suspect_cards , MrJacksName);
-                                change_scene(&head , Scene);
                         }
                         if(event.key.keysym.sym == SDLK_BACKSPACE){
                             if(cursor_pos>0){
@@ -1117,18 +1403,12 @@ int main(int argc , char** argv){
                             Mix_VolumeMusic(Volume);
                         }
                     }
-                    else if(event.key.keysym.sym == SDLK_s){
-                        //ShowWindow(windowHandle,SW_SHOW);
-                    }
-                    else if(event.key.keysym.sym == SDLK_h){
-                       // ShowWindow(windowHandle,SW_HIDE);
-                    }
                 break;
             }
         }
-        DrawStuff(&head , window_surface , light_eff , walk_able_eff); // Draw Stuff on buffer
-        draw(window); //actually draw them on screen (update Screen)
-        clear_surface(window_surface); //clear after that
+        DrawStuff(&head , window_surface , light_eff , walk_able_eff);
+        draw(window);
+        clear_surface(window_surface);
     }
     while(Scene->next){
         Scene = Scene->next;

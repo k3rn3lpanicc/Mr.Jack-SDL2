@@ -16,6 +16,8 @@ void print_cards(Card *head);
 void add_all_characters(Card **head);
 char *get_clicked_character(Drawable *head , int first , int second);
 char *TITLE_TEXT = "Mr.Jack FP project Written by k3rn3lPanic with SDL2 in C :P";
+
+
 TTF_Font *font_segoeui;
 TTF_Font *font_segoeui_big;
 TTF_Font *font_consolas_big;
@@ -50,8 +52,8 @@ char *In_Goodley = "Images\\INNOCENT_SERGENT_GOODLEY.png";
 char *In_Sherlock = "Images\\INNOCENT_SHERLOCK_HOLMES.png";
 char *In_William_Gull = "Images\\INNOCENT_WILLIAM_GULL.png";
 
-char *bg_pic = "Images\\back.jpg";
-char *bg_pic2 = "Images\\back2.jpg";
+char *bg_pic = "Images\\back.png";
+char *bg_pic2 = "Images\\back2.png";
 
 char *mute_btn = "Images\\mute.png";
 char *unmute_btn = "Images\\unmute.png";
@@ -118,6 +120,6 @@ int dist(Drawable *head , int first , int second , int gfirst , int gsecond);
 bool is_cell_wall(int first , int second);
 void Create_Cards(Card **First_half , Card **Second_half);
 char *get_next_turn(Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn);
-void Choose_Next(Drawable *Scene , char **state , char **Chosen_Player, _clickable *information , _clickable *before , _clickable *after , _clickable *_move , _clickable *_action , Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn , SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window,_clickable *round_bel , _clickable *turn_bel , _clickable *card_bel);
-
+void Choose_Next(Drawable *Scene  , Card *Detective_sus , Card *JackSus , Card *Sus , char *save_name , int *save_no, char *Jacks_name , char **state , char **Chosen_Player, _clickable *information , _clickable *before , _clickable *after , _clickable *_move , _clickable *_action , Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn , SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window,_clickable *round_bel , _clickable *turn_bel , _clickable *card_bel);
+void send_jack_name(char username[100] , char name[10] , char save_name[60]);
 #endif // MRJACK_GRAPHIC_H_INCLUDED

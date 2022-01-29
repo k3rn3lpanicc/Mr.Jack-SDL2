@@ -8,6 +8,7 @@
 #include<time.h>
 #include<stdlib.h>
 #include<math.h>
+#include<pthread.h>
 //map_blocks
 
 char *Cells_Empty_block = "Images\\Blocks\\empty_block.png";
@@ -19,6 +20,14 @@ char *Cells_pit = "Images\\Blocks\\pit.png";
 char *Cells_pit_lighten = "Images\\Blocks\\pit_light.png";
 char *Cells_Walkable = "Images\\Blocks\\walkable_block.png";
 char *Cells_light_effect = "Images\\Blocks\\light_effect.png";
+int G_JW = 0;
+int G_JS = 0;
+int G_JB = 0;
+int G_MS = 0;
+int G_IL = 0;
+int  G_SH = 0;
+int G_WG = 0;
+int G_SG = 0;
 
 typedef struct _pos{
 int x;
@@ -84,8 +93,6 @@ SDL_Surface *load_image(char const *path)
 void Play_voice(void *_voice_path){
     Mix_Chunk *sound_effect = Mix_LoadWAV(_voice_path);
     Mix_PlayChannel(-1 , sound_effect , 0);
-    //Mix_HaltChannel(1);
-    //Mix_FreeChunk(sound_effect);
 }
 
 void Play_voice_Thread(char *_voice_path){
@@ -114,6 +121,10 @@ void Init(){
 void draw(SDL_Window *window){
     SDL_UpdateWindowSurface(window);
     SDL_Delay(10);
+}
+bool new_move = false;
+void set_new_move(bool a){
+    new_move = a;
 }
 void clear_surface(SDL_Surface *window_surface){
     SDL_FillRect(window_surface, NULL, SDL_MapRGB(window_surface->format, 0, 0, 0));
@@ -164,7 +175,6 @@ bool is_mouse_inside_cell(_pos mouse_pos , SDL_Rect cell_rect){
         return true;
     }
     else{
-        ///TODO:We need some calcs for eentire hexagon here
         return false;
     }
 
@@ -292,7 +302,6 @@ void Draw_map(Drawable *scene , int x , int y){
     }
     FILE *file = fopen("Graphics\\Map.jack","r");
     if(file == NULL){
-        printf("can not load file!");
         return;
     }
     char data[50];
@@ -337,7 +346,11 @@ void Draw_map(Drawable *scene , int x , int y){
             cell->obj->cell_info->cell_type = "town_exit";
             cell->obj->cell_info->choose_able = false;
             SDL_FreeSurface(cell->obj->image);
-            cell->obj->image = load_image("Images\\Blocks\\exit.png");
+            if((cell->obj->cell_info->cell_pos.first==0&&cell->obj->cell_info->cell_pos.second==2)||(cell->obj->cell_info->cell_pos.first==12&&cell->obj->cell_info->cell_pos.second==16))
+                cell->obj->image = load_image("Images\\Blocks\\exit2.png");
+            else
+                cell->obj->image = load_image("Images\\Blocks\\exit1.png");
+
         }
         else if((strcmp(tp , "E") == 0)){
             Drawable *cell = Find_Cell(scene , first , second);
@@ -523,11 +536,9 @@ bool switch_lamps(_pair lamp1 , _pair lamp2,Drawable *head,SDL_Surface *window_s
                 Drawable *llmp = loc_lamp(head , lamp_1->obj->pos.x , lamp_1->obj->pos.y);
                 Drawable *llmp2 = loc_lamp(head , lamp_2->obj->pos.x , lamp_2->obj->pos.y);
                 if(llmp2){
-                    printf("the destination block is full\n");
                     return false;
                 }
                 if(!llmp){
-                    printf("there is no lights in this lightblock to move\n");
                     return false;
                 }
                 _pos mabda = {llmp->obj->pos.x, llmp->obj->pos.y};
@@ -545,17 +556,14 @@ bool switch_lamps(_pair lamp1 , _pair lamp2,Drawable *head,SDL_Surface *window_s
                 return true;
             }
             else{
-                printf("the first block is not a light block\n");
                 return false;
             }
         }
         else{
-            printf("Given block is not a light block\n");
             return false;
         }
     }
     else{
-        printf("lamp position is null\n");
         return false;
     }
 }
@@ -569,11 +577,9 @@ bool switch_pits(_pair pit1 , _pair pit2,Drawable *head,SDL_Surface *window_surf
                 Drawable *llmp = loc_pit(head , pit_1->obj->pos.x , pit_1->obj->pos.y);
                 Drawable *llmp2 = loc_pit(head , pit_2->obj->pos.x , pit_2->obj->pos.y);
                 if(llmp2){
-                    printf("the destination block is full\n");
                     return false;
                 }
                 if(!llmp){
-                    printf("There is no pitholds in this pit block to move\n");
                     return false;
                 }
                 _pos mabda = {llmp->obj->pos.x, llmp->obj->pos.y};
@@ -591,17 +597,14 @@ bool switch_pits(_pair pit1 , _pair pit2,Drawable *head,SDL_Surface *window_surf
                 return true;
             }
             else{
-                printf("First Block is not a pit block\n");
-                return false;
+               return false;
             }
         }
         else{
-            printf("Given block is not a pit block\n");
             return false;
         }
     }
     else{
-        printf("pit position is null\n");
         return false;
     }
 }
@@ -634,7 +637,6 @@ bool switch_characters(Drawable *head , char *name1 , char *name2 , SDL_Surface 
     Drawable *Player_1 = Search_by_tag(head , name1);
     Drawable *Player_2 = Search_by_tag(head , name2);
     if(!(Player_1 && Player_2)){
-        printf("one or two of the Players not found!\n");
         return false;
     }
     _pos P1 = {Player_1->obj->pos.x , Player_1->obj->pos.y};
@@ -661,17 +663,14 @@ bool change_character_place(Drawable *head ,char *name , _pair dest,SDL_Surface 
     if(found){
         Drawable *cell = Find_Cell(head ,dest.first,dest.second);
         if(!cell){
-            printf("the dest cell not found!\n");
             return false;
         }
         _pos mabda = {found->obj->pos.x, found->obj->pos.y};
         _pos maghsad = {cell->obj->pos.x+18, cell->obj->pos.y+13};
         if(mabda.x==maghsad.x && mabda.y==maghsad.y){
-            printf("base and dest are the same !\n");
             return false;
         }
         if(is_cell_full(head,maghsad.x,maghsad.y)){
-            printf("dest is full\n");
             return false;
         }
         for(int i = 0 ; i<=50 ; i++){
@@ -687,7 +686,6 @@ bool change_character_place(Drawable *head ,char *name , _pair dest,SDL_Surface 
         return true;
     }
     else{
-        printf("character not found!\n");
         return false;
     }
 
@@ -704,7 +702,6 @@ void change_watson_direction(Drawable *head , int _direction){
         return;
     }
     else{
-        printf("not found\n");
         return;
     }
 }
@@ -713,30 +710,24 @@ bool change_wall(Drawable *head , char *name , _pair dest,SDL_Surface *window_su
     char *next_wall = strcmp(name , "wall1")==0 ? "wall2" : "wall1";
     Drawable *next_wall_cell = Search_by_tag(head , next_wall);
     if(!next_wall_cell){
-        printf("next wall not found!\n");
         return false;
     }
     Drawable *cell_dest = Find_Cell(head , dest.first , dest.second);
     if(!cell){
-        printf("Wall not found!\n");
         return false;
     }
     if(cell_dest->obj->pos.x == next_wall_cell->obj->pos.x && cell_dest->obj->pos.y == next_wall_cell->obj->pos.y){
-        printf("the destination is full");
         return false;
     }
     if(cell->obj->pos.x==cell_dest->obj->pos.x&&cell->obj->pos.y==cell_dest->obj->pos.y){
-        printf("Base and dest are the same\n");
         return false;
     }
     if(!cell_dest){
-        printf("The destination is not a town_exit cell!\n");
-        return false;
+         return false;
     }
     if(strcmp(cell_dest->obj->tag , "MapCell") == 0 && strcmp(cell_dest->obj->cell_info->cell_type,"town_exit") == 0){
         Drawable *CC = Find_Cell(head ,dest.first , dest.second);
         if(!CC){
-            printf("error\n");
             return false;
         }
         _pos mabda = {cell->obj->pos.x, cell->obj->pos.y};
@@ -754,7 +745,6 @@ bool change_wall(Drawable *head , char *name , _pair dest,SDL_Surface *window_su
         return true;
     }
     else{
-        printf("the destination cell is not a town_exit!\n");
         return false;
     }
 
@@ -768,8 +758,7 @@ char *Choose_random_character(){
 char *get_clicked_character(Drawable *head , int first , int second){
     Drawable *cell = Find_Cell(head , first , second);
     if(!cell){
-        printf("Cell not found!\n");
-        return;
+        return "";
     }
     while(head){
         if(strlen(head->obj->tag) == 2 && head->obj->pos.x == cell->obj->pos.x+18 && head->obj->pos.y == cell->obj->pos.y+13){
@@ -1038,7 +1027,6 @@ Drawable *cell_under_character(Drawable *head , char *char_name){
     return NULL;
 }
 void load_card(Drawable *head , char *card_name){
-    printf("reveal : %s\n" , card_name);
     char *In_Lestrade = "Images\\INNOCENT_INSP_LESTRADE.png";
     char *In_Jermy = "Images\\INNOCENT_JERMY_BERT.png";
     char *In_John_Smith = "Images\\INNOCENT_JOHN_SMITH.png";
@@ -1047,29 +1035,54 @@ void load_card(Drawable *head , char *card_name){
     char *In_Goodley = "Images\\INNOCENT_SERGENT_GOODLEY.png";
     char *In_Sherlock = "Images\\INNOCENT_SHERLOCK_HOLMES.png";
     char *In_William_Gull = "Images\\INNOCENT_WILLIAM_GULL.png";
+    Drawable *cell;
     if(strcmp(card_name , "JW")==0){
-        Search_by_tag(head , "Watson")->obj->image = load_image(In_John_Watson);
+        cell = Search_by_tag(head , "Watson");
+        SDL_FreeSurface(cell->obj->image);
+        cell->obj->image = load_image(In_John_Watson);
+        G_JW = 1;
     }
     if(strcmp(card_name , "JS")==0){
-        Search_by_tag(head , "Smith")->obj->image = load_image(In_John_Smith);
+        cell = Search_by_tag(head , "Smith");
+        SDL_FreeSurface(cell->obj->image);
+        cell->obj->image = load_image(In_John_Smith);
+        G_JS = 1;
     }
     if(strcmp(card_name , "JB")==0){
-        Search_by_tag(head , "Jermy")->obj->image = load_image(In_Jermy);
+        cell = Search_by_tag(head , "Jermy");
+        SDL_FreeSurface(cell->obj->image);
+        cell->obj->image = load_image(In_Jermy);
+        G_JB = 1;
     }
     if(strcmp(card_name , "MS")==0){
-        Search_by_tag(head , "Stealthy")->obj->image = load_image(In_Miss_Stealthy);
+        cell = Search_by_tag(head , "Stealthy");
+        SDL_FreeSurface(cell->obj->image);
+        cell->obj->image = load_image(In_Miss_Stealthy);
+        G_MS = 1;
     }
     if(strcmp(card_name , "SG")==0){
-        Search_by_tag(head , "Goodley")->obj->image = load_image(In_Goodley);
+        cell = Search_by_tag(head , "Goodley");
+        SDL_FreeSurface(cell->obj->image);
+        cell->obj->image = load_image(In_Goodley);
+        G_SG =1;
     }
     if(strcmp(card_name , "IL")==0){
-        Search_by_tag(head , "Lestrade")->obj->image = load_image(In_Lestrade);
+        cell = Search_by_tag(head , "Lestrade");
+        SDL_FreeSurface(cell->obj->image);
+        cell->obj->image = load_image(In_Lestrade);
+        G_IL = 1;
     }
     if(strcmp(card_name , "SH")==0){
-        Search_by_tag(head , "Sherlock")->obj->image = load_image(In_Sherlock);
+        cell = Search_by_tag(head , "Sherlock");
+        SDL_FreeSurface(cell->obj->image);
+        cell->obj->image = load_image(In_Sherlock);
+        G_SH = 1;
     }
     if(strcmp(card_name , "WG")==0){
-        Search_by_tag(head , "Gull")->obj->image = load_image(In_William_Gull);
+        cell = Search_by_tag(head , "Gull");
+        SDL_FreeSurface(cell->obj->image);
+        cell->obj->image = load_image(In_William_Gull);
+        G_WG = 1;
     }
 }
 void shuffle(void *array, int n, size_t size) {
@@ -1110,31 +1123,38 @@ void shuffle_cards(Card *head){
     }
 }
 void burn_card(Drawable *head , char *card_name){
-    printf("\nburn : %s\n" , card_name);
     char *file_path = "Images\\Unknown_card_burned.png";
-    if(strcmp(card_name , "JW")==0){
+    if(strcmp(card_name , "JW")==0 && G_JW != 1){
         Search_by_tag(head , "Watson")->obj->image = load_image(file_path);
+        G_JW = -1;
     }
-    if(strcmp(card_name , "JS")==0){
+    if(strcmp(card_name , "JS")==0 && G_JS != 1){
         Search_by_tag(head , "Smith")->obj->image = load_image(file_path);
+        G_JS = -1;
     }
-    if(strcmp(card_name , "JB")==0){
+    if(strcmp(card_name , "JB")==0 && G_JB != 1){
         Search_by_tag(head , "Jermy")->obj->image = load_image(file_path);
+        G_JB = -1;
     }
-    if(strcmp(card_name , "MS")==0){
+    if(strcmp(card_name , "MS")==0&& G_MS != 1){
         Search_by_tag(head , "Stealthy")->obj->image = load_image(file_path);
+        G_MS = -1;
     }
-    if(strcmp(card_name , "SG")==0){
+    if(strcmp(card_name , "SG")==0 && G_SG != 1){
         Search_by_tag(head , "Goodley")->obj->image = load_image(file_path);
+        G_SG = -1;
     }
-    if(strcmp(card_name , "IL")==0){
+    if(strcmp(card_name , "IL")==0 && G_IL != 1){
         Search_by_tag(head , "Lestrade")->obj->image = load_image(file_path);
+        G_IL = -1;
     }
-    if(strcmp(card_name , "SH")==0){
+    if(strcmp(card_name , "SH")==0 && G_SH != 1){
         Search_by_tag(head , "Sherlock")->obj->image = load_image(file_path);
+        G_SH = -1;
     }
-    if(strcmp(card_name , "WG")==0){
+    if(strcmp(card_name , "WG")==0 && G_WG != 1){
         Search_by_tag(head , "Gull")->obj->image = load_image(file_path);
+        G_WG = -1;
     }
 }
 int distance(int x1 , int y1 , int x2 , int y2){
@@ -1170,12 +1190,34 @@ void Create_Cards(Card **First_half , Card **Second_half){
     }
 
 }
-void end_game(){
-    //todo
+void kmkm(Drawable *head, Card *kkd){
+    for(int i = 1 ; i<=4 ;i++){
+        char search[20];
+        sprintf(search , "card_%d" , i);
+        Search_by_tag(head , search)->obj->visible = true;
+    }
+    int cnt = 1;
+    while(kkd){
+        char search[20];
+        sprintf(search , "1card_%d" , cnt);
+        char file[20];
+        sprintf(file , "Images\\%s.png" , (kkd->name));
+        SDL_FreeSurface(Search_by_tag(head , search)->obj->image);
+        Search_by_tag(head , search)->obj->image = load_image(file);
+        cnt++;
+        kkd = kkd->next;
+    }
 }
-char *get_next_turn(Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn){
-    if((*round)==9){
-        end_game();
+char *get_next_turn(Drawable *head, Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn ,SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window ){
+    if((*round)==9 && (*turn)==1){
+        printf("lol");
+        Drawable *lol = head;
+        while(lol){
+            if(strcmp(lol->obj->tag,"Won_Label")==0){
+                Jack_Wins(head , lol->obj , window_surface , light_eff , walk_able_eff , window);
+            }
+            lol = lol->next;
+        }
     }
     if((*turn)==5){
         (*round)++;
@@ -1185,9 +1227,10 @@ char *get_next_turn(Card **First_half , Card **Second_half , int *round , int *t
             (*Second_half) = NULL;
             Create_Cards(First_half , Second_half);
         }
-        return get_next_turn(First_half , Second_half,round, turn , is_jacks_turn);
+        return get_next_turn(head , First_half , Second_half,round, turn , is_jacks_turn , window_surface , light_eff , walk_able_eff , window);
     }
     if((*round)%2==1){
+
         if((*turn) == 1 || (*turn)==4)
             (*is_jacks_turn) = false;
         else
@@ -1198,6 +1241,10 @@ char *get_next_turn(Card **First_half , Card **Second_half , int *round , int *t
             seek = seek->next;
         anser = seek->name;
         (*turn)++;
+        kmkm(head , *First_half);
+        char se[20];
+        sprintf(se , "card_%d" , (*turn)-1);
+        Search_by_tag(head , se)->obj->visible = false;
         return anser;
     }
     else{
@@ -1211,6 +1258,10 @@ char *get_next_turn(Card **First_half , Card **Second_half , int *round , int *t
             seek = seek->next;
         anser = seek->name;
         (*turn)++;
+        kmkm(head , *Second_half);
+        char se[20];
+        sprintf(se , "card_%d" , (*turn)-1);
+        Search_by_tag(head , se)->obj->visible = false;
         return anser;
     }
 }
@@ -1233,9 +1284,514 @@ char *get_moadel(char *name){
         return "Lestrade";
 
 }
-void Choose_Next(Drawable *Scene , char **state , char **Chosen_Player, _clickable *information , _clickable *before , _clickable *after , _clickable *_move , _clickable *_action , Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn , SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window,_clickable *round_bel , _clickable *turn_bel , _clickable *card_bel){
+int Len(Card *var){
+    int cnt = 0;
+    while(var){
+        cnt++;
+        var = var->next;
+    }
+    return cnt;
+}
+int name_to_int(char *name){
+    if(strcmp(name,"JW")==0)
+        return 0;
+    if(strcmp(name,"JS")==0)
+        return 1;
+    if(strcmp(name,"JB")==0)
+        return 2;
+    if(strcmp(name,"MS")==0)
+        return 3;
+    if(strcmp(name,"IL")==0)
+        return 4;
+    if(strcmp(name,"SG")==0)
+        return 5;
+    if(strcmp(name,"WG")==0)
+        return 6;
+    if(strcmp(name,"SH")==0)
+        return 7;
+}
+char *_int_to_name(int a){
+    if(a==0)
+        return "JW";
+    if(a==1)
+        return "JS";
+    if(a==2)
+        return "JB";
+    if(a==3)
+        return "MS";
+    if(a==4)
+        return "IL";
+    if(a==5)
+        return "SG";
+    if(a==6)
+        return "WG";
+    if(a==7)
+        return "SH";
+}
+void load_game(char *save_name , int *round , int *turn , Drawable *head , Card *first_half , Card *second_half , Card **Detective_sus , Card **JackSus , Card **Sus , char **Jackname){
+    FILE *file = fopen(save_name ,"rb");
+    int kk;
+    Search_by_tag(head , "move")->obj->visible = false;
+    Search_by_tag(head , "action")->obj->visible = false;
+    Search_by_tag(head , "one")->obj->visible = false;
+    Search_by_tag(head , "two")->obj->visible = false;
+    Search_by_tag(head , "three")->obj->visible = false;
+    Search_by_tag(head , "before")->obj->visible = false;
+    Search_by_tag(head , "after")->obj->visible = false;
+
+    Set_all_cells_unwalkable(head);
+    fread(&kk , sizeof(int) , 1, file);
+    (*Jackname) = _int_to_name(kk);
+    fread(round , sizeof(int) , 1,file);
+    fread(turn , sizeof(int) , 1,file);
+    fread(&(Search_by_tag(head , "JW")->obj->direction) , sizeof(int) , 1,file);
+    Drawable *cell;
+    int x, y;
+    cell =  Search_by_tag(head, "JW");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+    change_watson_direction(head , Search_by_tag(head , "JW")->obj->direction);
+
+    cell =  Search_by_tag(head, "JB");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    cell =  Search_by_tag(head, "MS");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    cell =  Search_by_tag(head, "WG");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    cell =  Search_by_tag(head, "IL");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+    cell =  Search_by_tag(head, "SH");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+    cell =  Search_by_tag(head, "JS");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    cell =  Search_by_tag(head, "SG");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    cell =  Search_by_tag(head, "wall1");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    cell =  Search_by_tag(head, "wall2");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    cell =  Search_by_tag(head, "LI1");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    cell =  Search_by_tag(head, "LI2");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    cell =  Search_by_tag(head, "LI3");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+    cell =  Search_by_tag(head, "LI4");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+    cell =  Search_by_tag(head, "LI5");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+    cell =  Search_by_tag(head, "LI6");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    cell =  Search_by_tag(head, "pit_hold1");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    cell =  Search_by_tag(head, "pit_hold2");
+    fread(&x , sizeof(int) , 1 , file);
+    fread(&y , sizeof(int) , 1 , file);
+    cell->obj->pos.x = x;
+    cell->obj->pos.y = y;
+
+
+    int Detective_sus_num;
+    fread(&Detective_sus_num , sizeof(int) , 1 , file);
+    char *name;
+    int tmp;
+    if(Detective_sus_num!=0){
+        fread(&tmp , sizeof(int),1, file);
+        name = _int_to_name(tmp);
+        (*Detective_sus) = NULL;
+        (*Detective_sus) = Create_card(name);
+        for(int i = 1; i<Detective_sus_num;i++){
+            fread(&tmp , sizeof(int),1, file);
+            name = _int_to_name(tmp);
+            append_card((*Detective_sus) , name);
+
+        }
+    }
+
+    int Jack_sus_num;
+    fread(&Jack_sus_num , sizeof(int) , 1 , file);
+
+    if(Jack_sus_num!=0){
+        fread(&tmp , sizeof(int),1, file);
+        name = _int_to_name(tmp);
+        (*JackSus) = NULL;
+        (*JackSus) = Create_card(name);
+        printf("lol");
+        for(int i = 1; i<Jack_sus_num;i++){
+            fread(&tmp , sizeof(int),1, file);
+            name = _int_to_name(tmp);
+            append_card((*JackSus) , name);
+        }
+    }
+
+    int Sus_num;
+    fread(&Sus_num , sizeof(int) , 1 , file);
+    if(Sus_num!=0){
+    fread(&tmp , sizeof(int),1, file);
+    name = _int_to_name(tmp);
+    (*Sus) = NULL;
+    (*Sus) = Create_card(name);
+        for(int i = 1; i<Sus_num;i++){
+            fread(&tmp , sizeof(int),1, file);
+            name = _int_to_name(tmp);
+            append_card((*Sus) , name);
+        }
+    }
+    Card *first = first_half;
+    for(int i = 0 ; i<4;i++){
+        fread(&tmp , sizeof(int) ,1 , file);
+        name = _int_to_name(tmp);
+        first->name = name;
+        first = first->next;
+    }
+    Card *second = second_half;
+    for(int i = 0 ; i<4;i++){
+        fread(&tmp , sizeof(int) ,1 , file);
+        name = _int_to_name(tmp);
+        second->name = name;
+        second = second->next;
+    }
+    Search_by_tag(head , "Goodley")->obj->image = load_image("Images\\Unknown_card.png");
+    Search_by_tag(head , "Sherlock")->obj->image = load_image("Images\\Unknown_card.png");
+    Search_by_tag(head , "Lestrade")->obj->image = load_image("Images\\Unknown_card.png");
+    Search_by_tag(head , "Jermy")->obj->image = load_image("Images\\Unknown_card.png");
+    Search_by_tag(head , "Smith")->obj->image = load_image("Images\\Unknown_card.png");
+    Search_by_tag(head , "Watson")->obj->image = load_image("Images\\Unknown_card.png");
+    Search_by_tag(head , "Stealthy")->obj->image = load_image("Images\\Unknown_card.png");
+    Search_by_tag(head , "Stealthy")->obj->image = load_image("Images\\Unknown_card.png");
+
+    fread(&G_JW , sizeof(int) , 1 , file);
+    fread(&G_JS , sizeof(int) , 1 , file);
+    fread(&G_JB , sizeof(int) , 1 , file);
+    fread(&G_MS , sizeof(int) , 1 , file);
+    fread(&G_IL , sizeof(int) , 1 , file);
+    fread(&G_SH , sizeof(int) , 1 , file);
+    fread(&G_WG , sizeof(int) , 1 , file);
+    fread(&G_SG , sizeof(int) , 1 , file);
+    if(G_JW==-1)
+        burn_card(head , "JW");
+    if(G_JW==1)
+        load_card(head , "JW");
+
+    if(G_JS==-1)
+        burn_card(head , "JS");
+    if(G_JS==1)
+        load_card(head , "JS");
+
+    if(G_JB==-1)
+        burn_card(head , "JB");
+    if(G_JB==1)
+        load_card(head , "JB");
+
+    if(G_MS==-1)
+        burn_card(head , "MS");
+    if(G_MS==1)
+        load_card(head , "MS");
+
+    if(G_IL==-1)
+        burn_card(head , "IL");
+    if(G_IL==1)
+        load_card(head , "IL");
+
+    if(G_SH==-1)
+        burn_card(head , "SH");
+    if(G_SH==1)
+        load_card(head , "SH");
+
+    if(G_WG==-1)
+        burn_card(head , "WG");
+    if(G_WG==1)
+        load_card(head , "WG");
+
+    if(G_SG==-1)
+        burn_card(head , "SG");
+    if(G_SG==1)
+        load_card(head , "SG");
+
+    burn_card(head , (*Jackname));
+    fclose(file);
+
+}
+void save_game(char save_name[] , int save_no , int round , int turn , Drawable *head , Card *first_half , Card *second_half , Card *Detective_sus , Card *JackSus , Card *Sus , char *Jack_name){
+    char file_name[100];
+    if(save_name[strlen(save_name)-1]==' '||save_name[strlen(save_name)-1]=='_'){
+            save_name[strlen(save_name)-1]='\0';
+    }
+    char file_name2[100];
+
+    sprintf(file_name , "Saves\\%s_%d.save" , save_name , save_no);
+    for(int i = 0; i<strlen(file_name);i++){
+        if(file_name[i]==' ')
+            file_name[i]='_';
+    }
+    FILE *file = fopen(file_name,"wb");
+    int kk = name_to_int(Jack_name);
+    fwrite(&kk , sizeof(int),1 , file);
+    fwrite(&round , sizeof(int),1 , file);
+    fwrite(&turn , sizeof(int),1 , file);
+    int dir = Search_by_tag(head,  "JW")->obj->direction;
+    fwrite(&dir , sizeof(int),1 , file);
+    Drawable *cell;
+    int x , y;
+
+    cell = Search_by_tag(head , "JW");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "JB");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "MS");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "WG");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "IL");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "SH");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "JS");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "SG");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "wall1");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "wall2");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "LI1");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "LI2");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "LI3");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "LI4");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "LI5");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "LI6");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "pit_hold1");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    cell = Search_by_tag(head , "pit_hold2");
+    x = cell->obj->pos.x;
+    y = cell->obj->pos.y;
+    fwrite(&x , sizeof(int) , 1 , file);
+    fwrite(&y , sizeof(int) , 1 , file);
+
+    int tmp = Len(Detective_sus);
+    fwrite(&tmp , sizeof(int) , 1 , file);
+    for(int i = 0; i<tmp;i++){
+        int shit = name_to_int(Detective_sus->name);
+        fwrite(&shit,sizeof(int),1,file);
+        Detective_sus = Detective_sus->next;
+    }
+    int tmp2 = Len(JackSus);
+    fwrite(&tmp2 , sizeof(int) , 1 , file);
+    for(int i = 0; i<tmp2 ; i++){
+        int shit = name_to_int(JackSus->name);
+        fwrite(&shit,sizeof(int),1,file);
+        JackSus = JackSus->next;
+    }
+    int tmp3 = Len(Sus);
+    fwrite(&tmp3 , sizeof(int) , 1 , file);
+    for(int i = 0; i<tmp3 ; i++){
+        int shit = name_to_int(Sus->name);
+        fwrite(&shit,sizeof(int),1,file);
+        Sus = Sus->next;
+    }
+    for(int i = 0; i<4 ; i++){
+        int shit = name_to_int(first_half->name);
+        fwrite(&shit,sizeof(int),1,file);
+        first_half = first_half->next;
+    }
+    for(int i = 0; i<4 ; i++){
+        int shit = name_to_int(second_half->name);
+        fwrite(&shit,sizeof(int),1,file);
+        second_half = second_half->next;
+    }
+    fwrite(&G_JW , sizeof(int) , 1 , file);
+    fwrite(&G_JS , sizeof(int) , 1 , file);
+    fwrite(&G_JB , sizeof(int) , 1 , file);
+    fwrite(&G_MS , sizeof(int) , 1 , file);
+    fwrite(&G_IL , sizeof(int) , 1 , file);
+    fwrite(&G_SH , sizeof(int) , 1 , file);
+    fwrite(&G_WG , sizeof(int) , 1 , file);
+    fwrite(&G_SG , sizeof(int) , 1 , file);
+
+    fclose(file);
+}
+void unvisible_all(Drawable *head){
+    Search_by_tag(head , "info_JS")->obj->visible = false;
+    Search_by_tag(head , "info_JB")->obj->visible = false;
+    Search_by_tag(head , "info_JW")->obj->visible = false;
+    Search_by_tag(head , "info_MS")->obj->visible = false;
+    Search_by_tag(head , "info_IL")->obj->visible = false;
+    Search_by_tag(head , "info_SH")->obj->visible = false;
+    Search_by_tag(head , "info_WG")->obj->visible = false;
+    Search_by_tag(head , "info_SG")->obj->visible = false;
+}
+
+void Choose_Next(Drawable *Scene  , Card *Detective_sus , Card *JackSus , Card *Sus , char *save_name , int *save_no, char *Jacks_name , char **state , char **Chosen_Player, _clickable *information , _clickable *before , _clickable *after , _clickable *_move , _clickable *_action , Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn , SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window,_clickable *round_bel , _clickable *turn_bel , _clickable *card_bel){
+    DrawStuff(&Scene , window_surface , light_eff,walk_able_eff);
+    draw(window);
+    clear_surface(window_surface);
     int cround = (*round);
-    char *clicked_on = get_next_turn(First_half , Second_half , round , turn , is_jacks_turn);
+    if(new_move||(*save_no)==1){
+        save_game(save_name , (*save_no) , (*round) , (*turn) , Scene, *First_half , *Second_half , Detective_sus , JackSus , Sus , Jacks_name);
+        (*save_no)++;
+    }
+    if(!new_move){
+        new_move = true;
+    }
+    char *clicked_on = get_next_turn(Scene , First_half , Second_half , round , turn , is_jacks_turn,window_surface , light_eff , walk_able_eff , window);
+
+    char kkm[15];
+    sprintf(kkm , "info_%s" , clicked_on);
+    unvisible_all(Scene);
+    Search_by_tag(Scene , kkm)->obj->visible = true;
+
     char rr[200];
     char gg[200];
     sprintf(rr , "Round %d\0" , (*round));
@@ -1267,10 +1823,12 @@ void Choose_Next(Drawable *Scene , char **state , char **Chosen_Player, _clickab
     SDL_Color fgg3 = { .r=200 , .g=0 , .b=255 };
     SDL_Color fg2 = { .r=50 , .g=255 , .b=50 };
 
-    if(cround!=(*round))
-        change_information_label(Scene , round_bel , rr,window_surface , light_eff , walk_able_eff , window,fgg);
+    change_information_label(Scene , round_bel , rr,window_surface , light_eff , walk_able_eff , window,fgg);
+    if(cround!=(*round)){
+        Shohud(Scene,Jacks_name);
+    }
     change_information_label(Scene , turn_bel , gg,window_surface , light_eff , walk_able_eff , window,fgg2);
-    if((*round)%2==1 && (*turn)==2)
+    //if((*round)%2==1 && (*turn)==2)
         change_information_label(Scene , card_bel , bb,window_surface , light_eff , walk_able_eff , window,fgg3);
 
     if(strcmp(clicked_on,"")==0){
@@ -1279,7 +1837,6 @@ void Choose_Next(Drawable *Scene , char **state , char **Chosen_Player, _clickab
     else{
         (*Chosen_Player) = clicked_on;
 
-        printf("Chosen_Player : %s\n" , (*Chosen_Player));
         if(strcmp((*Chosen_Player) , "JS")==0){
             change_information_label(Scene , information , "Move lights before or after ? ",window_surface , light_eff , walk_able_eff , window,fg2);
             (*before).visible = true;
@@ -1326,33 +1883,40 @@ void Choose_Next(Drawable *Scene , char **state , char **Chosen_Player, _clickab
 }
 void change_information_label_2(Drawable *head ,_clickable *label , char *new_text , SDL_Surface *window_surface , SDL_Surface *light_eff,SDL_Surface *walkable_effect,SDL_Window *window,SDL_Color fg2){
     TTF_Font *font_consolas;
-    font_consolas = TTF_OpenFont("ALGER.TTF" , 60);
+    font_consolas = TTF_OpenFont("ALGER.TTF" , 100);
     for(int i = 0; i<strlen(new_text);i++){
         char show[strlen(new_text)+1];
         for (int j = 0 ; j<=i ; j++){
             show[j] = new_text[j];
         }
         show[i+1] = '\0';
-        SDL_Surface *new_surface = TTF_RenderText_Solid(font_consolas , show,fg2);
+        SDL_Surface *new_surface = TTF_RenderText_Blended_Wrapped(font_consolas , show,fg2,1000);
         SDL_FreeSurface(label->image);
         label->image = new_surface;
         DrawStuff(&head , window_surface , light_eff,walkable_effect);
         draw(window);
         clear_surface(window_surface);
+        SDL_Delay(10);
     }
     TTF_CloseFont(font_consolas);
 }
 void Detective_Wins(Drawable *head , _clickable *Win_Label ,SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window){
+    Stop_Mixer();
     Play_voice("Sounds\\Yeay.mp3");
     Win_Label->visible = true;
     SDL_Color fg2 = { .r=50 , .g=255 , .b=50 };
+    Search_by_tag(head, "blackeff")->obj->visible = true;
     change_information_label_2(head , Win_Label , "Detective Won!",window_surface , light_eff , walk_able_eff , window,fg2);
+    end_game();
 }
 void Jack_Wins(Drawable *head , _clickable *Win_Label ,SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window){
+    Stop_Mixer();
     Play_voice("Sounds\\Game_over.mp3");
     Win_Label->visible = true;
-    SDL_Color fg2 = { .r=50 , .g=50 , .b=255 };
+    SDL_Color fg2 = { .r=255 , .g=50 , .b=50 };
+    Search_by_tag(head, "blackeff")->obj->visible = true;
     change_information_label_2(head , Win_Label , "Mr.Jack Won!",window_surface , light_eff , walk_able_eff , window,fg2);
+    end_game();
 }
 char *dest_char_name(Drawable *head , int first , int second){
     Drawable *cell = Find_Cell(head , first , second);
@@ -1366,3 +1930,120 @@ char *dest_char_name(Drawable *head , int first , int second){
     }
     return "";
 }
+void end_game(){
+
+}
+bool is_cell_empty_wall(Drawable *head,  int first , int second){
+    if(!is_cell_wall(first , second))
+        return false;
+    else{
+        Drawable *wall1 = Search_by_tag(head,  "wall1");
+        Drawable *wall2 = Search_by_tag(head,  "wall2");
+        _pair wall1_pos = loc(head , wall1->obj->pos.x , wall1->obj->pos.y);
+        _pair wall2_pos = loc(head , wall2->obj->pos.x , wall2->obj->pos.y);
+        if((wall1_pos.first == first && wall1_pos.second == second)||((wall2_pos.first == first && wall2_pos.second == second))){
+            return false;
+        }
+        return true;
+    }
+}
+void* func(void* arg)
+{
+    pthread_detach(pthread_self());
+    system((char*)arg);
+    // exit the current thread
+    pthread_exit(NULL);
+}
+void send_jack_name(char username[100] , char name[10] , char save_name[60]){
+    char lol[200];
+    if(save_name[strlen(save_name)-1]=='_'||save_name[strlen(save_name)-1]==' ')
+        save_name[strlen(save_name)-1]='\0';
+    sprintf(lol , "req.exe %s %s %s" ,username , name,save_name);
+    system(lol);
+    printf("\nSent!");
+}
+bool is_cell_in_map(int first , int second){
+    if(first<0 || first>12)
+        return false;
+    if(first%2==0){
+        if(second<0||second>16)
+            return false;
+    }
+    else{
+        if(second<1 || second>17)
+            return false;
+    }
+    return true;
+}
+bool is_cell_full_2(Drawable *head , int first, int second){
+    if(!is_cell_in_map(first , second))
+        return false;
+    Drawable *cell = Find_Cell(head , first , second);
+    return is_cell_full(head , cell->obj->pos.x+18 , cell->obj->pos.y+13);
+}
+bool is_seen(Drawable *head , char *name){
+    Drawable *cell = cell_under_character(head , name);
+    if(cell->obj->cell_info->lighten)
+        return true;
+    _pair lol = {cell->obj->cell_info->cell_pos.first , cell->obj->cell_info->cell_pos.second};
+    int first , second;
+    first = lol.first;
+    second = lol.second;
+    if(is_cell_full_2(head, first , second-2)||is_cell_full_2(head, first , second+2)||is_cell_full_2(head, first-1 , second-1)||is_cell_full_2(head, first+1 , second-1)||is_cell_full_2(head, first-1 , second+1)||is_cell_full_2(head, first+1 , second+1))
+        return true;
+    return false;
+}
+void Shohud(Drawable *head , char *JacksName){
+    bool is_jack_seen = is_seen(head, JacksName);
+    //load_card(head, JacksName);
+
+    if(is_jack_seen != is_seen(head, "JW")){
+        load_card(head , "JW");
+    }
+    if(is_jack_seen != is_seen(head, "JS")){
+        load_card(head , "JS");
+    }
+    if(is_jack_seen != is_seen(head, "JB")){
+        load_card(head , "JB");
+    }
+    if(is_jack_seen != is_seen(head, "MS")){
+        load_card(head , "MS");
+    }
+    if(is_jack_seen != is_seen(head, "SG")){
+        load_card(head , "SG");
+    }
+    if(is_jack_seen != is_seen(head, "WG")){
+        load_card(head , "WG");
+    }
+    if(is_jack_seen != is_seen(head, "IL")){
+        load_card(head , "IL");
+    }
+    if(is_jack_seen != is_seen(head, "SH")){
+        load_card(head , "SH");
+    }
+}
+
+int get_last_save(char name[100]){
+    int no = 1;
+    char file_name[200];
+    sprintf(file_name , "Saves\\%s_%d.save" , name , no);
+    FILE *file = fopen(file_name, "r");
+    if(!file)
+        return 0;
+    else{
+        fclose(file);
+        while(true){
+            no++;
+            char file_name2[200];
+            sprintf(file_name , "Saves\\%s_%d.save" , name , no);
+            FILE *file = fopen(file_name, "r");
+            if(!file)
+                break;
+            else
+                fclose(file);
+        }
+        return no-1;
+    }
+
+}
+
