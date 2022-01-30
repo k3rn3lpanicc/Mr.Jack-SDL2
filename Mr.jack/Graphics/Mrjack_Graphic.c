@@ -478,7 +478,6 @@ Drawable *loc_pit(Drawable *head , int x , int y){
     }
     return NULL;
 }
-
 void Map_Lights(Drawable *head){
     Drawable *seek = head;
     while(seek){
@@ -1352,123 +1351,92 @@ void load_game(char *save_name , int *round , int *turn , Drawable *head , Card 
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
     change_watson_direction(head , Search_by_tag(head , "JW")->obj->direction);
-
     cell =  Search_by_tag(head, "JB");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     cell =  Search_by_tag(head, "MS");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     cell =  Search_by_tag(head, "WG");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     cell =  Search_by_tag(head, "IL");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
     cell =  Search_by_tag(head, "SH");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
     cell =  Search_by_tag(head, "JS");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     cell =  Search_by_tag(head, "SG");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     cell =  Search_by_tag(head, "wall1");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     cell =  Search_by_tag(head, "wall2");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     cell =  Search_by_tag(head, "LI1");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     cell =  Search_by_tag(head, "LI2");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     cell =  Search_by_tag(head, "LI3");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
     cell =  Search_by_tag(head, "LI4");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
     cell =  Search_by_tag(head, "LI5");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
     cell =  Search_by_tag(head, "LI6");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     cell =  Search_by_tag(head, "pit_hold1");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     cell =  Search_by_tag(head, "pit_hold2");
     fread(&x , sizeof(int) , 1 , file);
     fread(&y , sizeof(int) , 1 , file);
     cell->obj->pos.x = x;
     cell->obj->pos.y = y;
-
-
     int Detective_sus_num;
     fread(&Detective_sus_num , sizeof(int) , 1 , file);
     char *name;
@@ -1482,13 +1450,10 @@ void load_game(char *save_name , int *round , int *turn , Drawable *head , Card 
             fread(&tmp , sizeof(int),1, file);
             name = _int_to_name(tmp);
             append_card((*Detective_sus) , name);
-
         }
     }
-
     int Jack_sus_num;
     fread(&Jack_sus_num , sizeof(int) , 1 , file);
-
     if(Jack_sus_num!=0){
         fread(&tmp , sizeof(int),1, file);
         name = _int_to_name(tmp);
@@ -1501,7 +1466,6 @@ void load_game(char *save_name , int *round , int *turn , Drawable *head , Card 
             append_card((*JackSus) , name);
         }
     }
-
     int Sus_num;
     fread(&Sus_num , sizeof(int) , 1 , file);
     if(Sus_num!=0){
@@ -1536,8 +1500,7 @@ void load_game(char *save_name , int *round , int *turn , Drawable *head , Card 
     Search_by_tag(head , "Smith")->obj->image = load_image("Images\\Unknown_card.png");
     Search_by_tag(head , "Watson")->obj->image = load_image("Images\\Unknown_card.png");
     Search_by_tag(head , "Stealthy")->obj->image = load_image("Images\\Unknown_card.png");
-    Search_by_tag(head , "Stealthy")->obj->image = load_image("Images\\Unknown_card.png");
-
+    Search_by_tag(head , "Gull")->obj->image = load_image("Images\\Unknown_card.png");
     fread(&G_JW , sizeof(int) , 1 , file);
     fread(&G_JS , sizeof(int) , 1 , file);
     fread(&G_JB , sizeof(int) , 1 , file);
@@ -1550,45 +1513,36 @@ void load_game(char *save_name , int *round , int *turn , Drawable *head , Card 
         burn_card(head , "JW");
     if(G_JW==1)
         load_card(head , "JW");
-
     if(G_JS==-1)
         burn_card(head , "JS");
     if(G_JS==1)
         load_card(head , "JS");
-
     if(G_JB==-1)
         burn_card(head , "JB");
     if(G_JB==1)
         load_card(head , "JB");
-
     if(G_MS==-1)
         burn_card(head , "MS");
     if(G_MS==1)
         load_card(head , "MS");
-
     if(G_IL==-1)
         burn_card(head , "IL");
     if(G_IL==1)
         load_card(head , "IL");
-
     if(G_SH==-1)
         burn_card(head , "SH");
     if(G_SH==1)
         load_card(head , "SH");
-
     if(G_WG==-1)
         burn_card(head , "WG");
     if(G_WG==1)
         load_card(head , "WG");
-
     if(G_SG==-1)
         burn_card(head , "SG");
     if(G_SG==1)
         load_card(head , "SG");
-
     burn_card(head , (*Jackname));
     fclose(file);
-
 }
 void save_game(char save_name[] , int save_no , int round , int turn , Drawable *head , Card *first_half , Card *second_half , Card *Detective_sus , Card *JackSus , Card *Sus , char *Jack_name){
     char file_name[100];
@@ -1791,7 +1745,6 @@ void Choose_Next(Drawable *Scene  , Card *Detective_sus , Card *JackSus , Card *
     sprintf(kkm , "info_%s" , clicked_on);
     unvisible_all(Scene);
     Search_by_tag(Scene , kkm)->obj->visible = true;
-
     char rr[200];
     char gg[200];
     sprintf(rr , "Round %d\0" , (*round));

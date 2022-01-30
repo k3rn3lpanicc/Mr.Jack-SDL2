@@ -16,23 +16,17 @@ void print_cards(Card *head);
 void add_all_characters(Card **head);
 char *get_clicked_character(Drawable *head , int first , int second);
 char *TITLE_TEXT = "Mr.Jack FP project Written by k3rn3lPanic with SDL2 in C :P";
-
-
 TTF_Font *font_segoeui;
 TTF_Font *font_segoeui_big;
 TTF_Font *font_consolas_big;
 TTF_Font *font_consolas;
-
 SDL_Color fg = {.a = 255 , .r = 255 , .g = 255 , .b = 255};
 SDL_Color fg2 = {.a = 255 , .r = 50 , .g = 255 , .b = 50};
-
 char *fonts_segoeui = "segoeui.ttf";
 char *fonts_consolas = "consolas.ttf";
-
 char *sounds_button = "Sounds\\button.wav";
 char *sounds_button2 = "Sounds\\button2.wav";
 char *sounds_button3 = "Sounds\\button3.wav";
-///Buttons here
 char *btn_play = "Images\\btn_play.png";
 char *btn_exit = "Images\\btn_exit.png";
 char *btn_resume = "Images\\btn_resume.png";
@@ -40,8 +34,6 @@ char *btn_back = "Images\\btn_back.png";
 char *btn_about = "Images\\btn_about.png";
 char *border_pic = "Images\\border.png";
 char *map_pic = "Images\\map.png";
-
-///----end----
 char *unknown_card = "Images\\Unknown_card.png";
 char *In_Lestrade = "Images\\INNOCENT_INSP_LESTRADE.png";
 char *In_Jermy = "Images\\INNOCENT_JERMY_BERT.png";
@@ -51,18 +43,14 @@ char *In_Miss_Stealthy = "Images\\INNOCENT_MISS_STEALTHY.png";
 char *In_Goodley = "Images\\INNOCENT_SERGENT_GOODLEY.png";
 char *In_Sherlock = "Images\\INNOCENT_SHERLOCK_HOLMES.png";
 char *In_William_Gull = "Images\\INNOCENT_WILLIAM_GULL.png";
-
 char *bg_pic = "Images\\back.png";
 char *bg_pic2 = "Images\\back2.png";
-
 char *mute_btn = "Images\\mute.png";
 char *unmute_btn = "Images\\unmute.png";
-
 char *point_pic = "Images\\point.png";
 char *about_me = "Images\\about_me.png";
 char *home = "Images\\home.png";
 char *home_hover = "Images\\home_hover.png";
-
 char *empty_cell = "Images\\Blocks\\empty_block.png";
 char *walkable_block = "Images\\Blocks\\walkable_block.png";
 char *light_effect = "Images\\Blocks\\light_effect.png";
@@ -122,4 +110,11 @@ void Create_Cards(Card **First_half , Card **Second_half);
 char *get_next_turn(Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn);
 void Choose_Next(Drawable *Scene  , Card *Detective_sus , Card *JackSus , Card *Sus , char *save_name , int *save_no, char *Jacks_name , char **state , char **Chosen_Player, _clickable *information , _clickable *before , _clickable *after , _clickable *_move , _clickable *_action , Card **First_half , Card **Second_half , int *round , int *turn , bool *is_jacks_turn , SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window,_clickable *round_bel , _clickable *turn_bel , _clickable *card_bel);
 void send_jack_name(char username[100] , char name[10] , char save_name[60]);
+void Jack_Wins(Drawable *head , _clickable *Win_Label ,SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window);
+bool is_cell_empty_wall(Drawable *head,  int first , int second);
+char *dest_char_name(Drawable *head , int first , int second);
+void Detective_Wins(Drawable *head , _clickable *Win_Label ,SDL_Surface *window_surface ,SDL_Surface *light_eff,SDL_Surface *walk_able_eff,SDL_Window *window);
+void set_new_move(bool a);
+void load_game(char *save_name , int *round , int *turn , Drawable *head , Card *first_half , Card *second_half , Card **Detective_sus , Card **JackSus , Card **Sus , char **Jackname);
+int get_last_save(char name[100]);
 #endif // MRJACK_GRAPHIC_H_INCLUDED
